@@ -39,7 +39,7 @@ bool Parser::Process() {
 	// Save the latest section
 	parameters_.push_back(section);
 
-	return parameters_.empty();
+	return !parameters_.empty();
 }
 
 const Parser::Parameters& Parser::Get() const noexcept {

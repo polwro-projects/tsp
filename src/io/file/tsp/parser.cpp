@@ -2,6 +2,9 @@
 
 #include "utils/tokenizer.hpp"
 
+// FIXME
+#include <iostream>
+
 namespace io::file::tsp {
 Parser::Parser(Data data)
 	: data_{std::move(data)} { }
@@ -19,7 +22,7 @@ bool Parser::Process() {
 	}
 
 	matrix_ = GetDistanceMatrix(data_);
-	return matrix_.Columns() != dimension;
+	return matrix_.Columns() == dimension;
 }
 
 const Parser::DistanceMatrix& Parser::Get() const noexcept {
@@ -36,7 +39,7 @@ Parser::DistanceMatrix Parser::GetDistanceMatrix(const Data& data) {
 		// Convert the parsed string to a row of matrix
 		const auto line = *iterator;
 		const auto data = utils::Tokenizer::tokenize(line, ' ');
-		std::deque<uint32_t> weights;
+		std::deque<int32_t> weights;
 		std::for_each(data.cbegin(), data.cend(), [&weights](const std::string& value) {
 			weights.push_back(std::stoi(value));
 		});

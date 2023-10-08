@@ -9,7 +9,7 @@
 namespace io::file::tsp {
 class Parser : virtual public IParser {
 public:
-	using DistanceMatrix = math::Matrix<uint32_t>;
+	using DistanceMatrix = math::Matrix<int32_t>;
 	using Data = io::Reader::Data;
 
 public:

@@ -1,78 +1,78 @@
 #pragma once
 
+#include <deque>
+#include <iostream>
 #include <stdexcept>
 #include <string>
-#include <iostream>
-#include <deque>
 
 namespace math {
-	template < class T >
-	class Matrix {
-	private:
-		using Values = std::deque< std::deque< T > >;
+template <class T>
+class Matrix {
+private:
+	using Values = std::deque<std::deque<T>>;
 
-	public:
-		Matrix() = default;
+public:
+	Matrix() = default;
 
-		Matrix(uint32_t columns, uint32_t rows) {
-			resize(columns, rows);
+	Matrix(uint32_t columns, uint32_t rows) {
+		resize(columns, rows);
+	}
+
+	Matrix(const Matrix<T>& rhs)
+		: values_{rhs.values_} { }
+
+public:
+	Matrix& operator=(const Matrix<T>& rhs) {
+		values_ = rhs.values_;
+		return *this;
+	}
+
+	T& operator()(uint32_t column, uint32_t row) {
+		return const_cast<T&>(const_cast<const Matrix*>(this)->operator()(column, row));
+	}
+
+	const T& operator()(uint32_t column, uint32_t row) const {
+		if(column >= Columns() || row >= Rows()) {
+			throw std::runtime_error("Size of the matrix is smaller than the provided position");
 		}
 
-		Matrix(const Matrix< T >& rhs) : values_{ rhs.values_ } {}
+		auto& matrix_row = values_.at(row);
+		return matrix_row.at(column);
+	}
 
-	public:
-		Matrix& operator=(const Matrix< T >& rhs) {
-			values_ = rhs.values_;
-			return *this;
+	size_t Rows() const {
+		return values_.size();
+	}
+
+	size_t Columns() const {
+		return Rows() == 0 ? 0 : values_.at(0).size();
+	}
+
+	void resize(uint32_t columns, uint32_t rows) {
+		// TODO : add checks
+
+		// Construct rows of the matrix
+		for(uint32_t row{}; row < rows; ++row) {
+			values_.emplace_back(columns);
 		}
+	}
 
-		T& operator()(uint32_t column, uint32_t row) {
-			return const_cast<T&>(const_cast<const Matrix*>(this)->operator()(column, row));
-		}
+	void insert(const std::deque<T>& value) {
+		// TODO : add a check
 
-		const T& operator()(uint32_t column, uint32_t row) const {
-			if (column >= Columns() || row >= Rows()) {
-				throw std::runtime_error(
-					"Size of the matrix is smaller than the provided position");
-			}
+		values_.push_back(value);
+	}
 
-			auto& matrix_row = values_.at(row);
-			return matrix_row.at(column);
-		}
+private:
+	Values values_;
+};
+} // namespace math
 
-		size_t Rows() const {
-			return values_.size();
-		}
-
-		size_t Columns() const {
-			return Rows() == 0 ? 0 : values_.at(0).size();
-		}
-
-		void resize(uint32_t columns, uint32_t rows) {
-			// TODO : add checks
-			
-			// Construct rows of the matrix
-			for (uint32_t row{}; row < rows; ++row) {
-				values_.emplace_back(columns);
-			}
-		}
-
-		void insert(const std::deque< T >& value) {
-			// TODO : add a check
-
-			values_.push_back(value);
-		}
-
-	private:
-		Values values_;
-	};
-}
-
-template < class T >
+template <class T>
 std::ostream& operator<<(std::ostream& stream, const math::Matrix<T>& matrix) {
-	for (uint32_t row{}; row < matrix.Rows(); ++row) {
-		for (uint32_t column{}; column < matrix.Columns(); ++column) {
-			std::cout << matrix(column, row);
+	for(uint32_t row{}; row < matrix.Rows(); ++row) {
+		for(uint32_t column{}; column < matrix.Columns(); ++column) {
+			std::cout << matrix(column, row) << " ";
 		}
 		std::cout << std::endl;
 	}

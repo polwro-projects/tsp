@@ -7,10 +7,14 @@
 Application::Application(const std::string& config_file) {
 	// Read the parameters
 	io::Reader reader(config_file);
-	reader.Process();
+	if(!reader.Process()) {
+		throw std::runtime_error("Reading the INI file failed");
+	}
 
 	io::file::ini::Parser parser{reader.Get()};
-	parser.Process();
+	if(!parser.Process()) {
+		throw std::runtime_error("Parsing the INI file failed");
+	}
 	parameters_ = parser.Get();
 
 	// Open the output file
@@ -28,8 +32,6 @@ Application::~Application() {
 }
 
 void Application::Start() {
-	math::Matrix<uint32_t> positions;
-
 	for(const auto& section : parameters_) {
 		// Skip the output section as it was checked already
 		if(section.name == "output") {
@@ -40,28 +42,30 @@ void Application::Start() {
 		output_file_ << section.name << std::endl;
 
 		io::Reader reader(section.properties.at("filename"));
-		reader.Process();
+		if(!reader.Process()) {
+			throw std::runtime_error("Reading the TSP file failed");
+		}
 
 		io::file::tsp::Parser parser{reader.Get()};
-		parser.Process();
-		positions = parser.Get();
+		if(!parser.Process()) {
+			throw std::runtime_error("Parsing the TSP file failed");
+		}
+		const auto positions = parser.Get();
 
 		for(uint32_t index{1}; index <= std::stoi(section.properties.at("count")); ++index) {
 			const auto start_point = std::chrono::system_clock::now();
-
-			if(section.properties.find("start") != section.properties.end()) {
-				Solve(positions, std::stoi(section.properties.at("start")));
-			} else {
-				Solve(positions);
-			}
-
+			const auto solution = Solve(positions);
 			const auto end_point = std::chrono::system_clock::now();
 
 			// Store the duration of the operation
-			output_file_ << std::chrono::duration_cast<std::chrono::microseconds>(end_point -
-																				  start_point)
-								.count()
-						 << std::endl;
+			const auto duration =
+				std::chrono::duration_cast<std::chrono::microseconds>(end_point - start_point);
+			output_file_ << duration.count() << ",";
+
+			for(const auto position : solution) {
+				output_file_ << position << "->";
+			}
+			output_file_ << solution.at(0) << std::endl;
 		}
 
 		// Visually separate the sections
@@ -69,7 +73,7 @@ void Application::Start() {
 	}
 }
 
-TSP::PositionList Application::Solve(const math::Matrix<uint32_t>& matrix, int32_t start_position) {
+TSP::PositionList Application::Solve(const DistanceMatrix& matrix) {
 	TSP tsp{matrix};
-	return tsp.Solve(start_position);
+	return tsp.Solve();
 }

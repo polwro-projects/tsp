@@ -1,11 +1,12 @@
-#pragma once 
+#pragma once
 
-#include <string>
 #include <fstream>
+#include <string>
 
-#include "tsp.hpp"
+#include "io/file/ini/parser.hpp"
 #include "io/reader.hpp"
 #include "math/matrix.hpp"
+#include "tsp.hpp"
 
 class Application final {
 public:
@@ -19,6 +20,6 @@ protected:
 	TSP::PositionList Solve(const math::Matrix<uint32_t>& matrix, int32_t start_position = -1);
 
 private:
-	io::Reader<io::FileTypes::kIni>::Parameters parameters_;
+	io::file::ini::Parser::Parameters parameters_;
 	std::ofstream output_file_;
 };

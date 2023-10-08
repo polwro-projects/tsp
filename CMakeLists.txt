@@ -2,12 +2,15 @@
 
 project ("TSP")
 
-set( SOURCES 
+set(SOURCES
+	"src/io/file/ini/parser.cpp"
+	"src/io/file/tsp/parser.cpp"
+	"src/io/reader.cpp"
+	"src/utils/tokenizer.cpp"
+	"src/application.cpp"
 	"src/main.cpp"
-	"src/utils/tokenizer.cpp" 
-	"src/io/basereader.cpp"
-	"src/tsp.cpp" 
-	"src/application.cpp")
+	"src/tsp.cpp"
+	)
 
 add_executable (TSP ${SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC

@@ -50,11 +50,11 @@ void Application::Start() {
 		if(!parser.Process()) {
 			throw std::runtime_error("Parsing the TSP file failed");
 		}
-		const auto positions = parser.Get();
 
+		TSP tsp{parser.Get()};
 		for(uint32_t index{1}; index <= std::stoi(section.properties.at("count")); ++index) {
 			const auto start_point = std::chrono::system_clock::now();
-			const auto solution = Solve(positions);
+			const auto solution = tsp.Solve();
 			const auto end_point = std::chrono::system_clock::now();
 
 			// Store the duration of the operation
@@ -71,9 +71,4 @@ void Application::Start() {
 		// Visually separate the sections
 		output_file_ << std::endl;
 	}
-}
-
-TSP::PositionList Application::Solve(const DistanceMatrix& matrix) {
-	TSP tsp{matrix};
-	return tsp.Solve();
 }

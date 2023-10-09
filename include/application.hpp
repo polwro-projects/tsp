@@ -19,9 +19,6 @@ public:
 public:
 	void Start();
 
-protected:
-	TSP::PositionList Solve(const DistanceMatrix& matrix);
-
 private:
 	io::file::ini::Parser::Parameters parameters_;
 	std::ofstream output_file_;

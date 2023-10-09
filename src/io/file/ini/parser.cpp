@@ -14,6 +14,9 @@ bool Parser::Process() {
 		return false;
 	}
 
+	// Clean the previous data, if it exists
+	parameters_.clear();
+
 	Section section;
 	for(const auto& line : data_) {
 		if(IsSectionHeader(line)) {

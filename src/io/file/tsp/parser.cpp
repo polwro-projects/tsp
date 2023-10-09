@@ -61,13 +61,13 @@ Parser::DistanceMatrix Parser::GetDistanceMatrix(const Data& data) {
 		const auto data = utils::Tokenizer::tokenize(line, ' ');
 
 		// Fill the row with the data
-		std::deque<int32_t> weights;
+		DistanceMatrix::RowType weights;
 		std::for_each(data.cbegin(), data.cend(), [&weights](const std::string& value) {
 			weights.push_back(std::stoi(value));
 		});
 
 		// Add the row to the matrix
-		matrix.InsertRow(weights);
+		matrix.InsertRow(std::move(weights));
 	}
 
 	return std::move(matrix);

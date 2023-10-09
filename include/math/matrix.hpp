@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include <deque>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace math {
 /**
@@ -30,10 +30,10 @@ namespace math {
  * 
  * @tparam T the underlying type of the matrix
  */
-template <class T>
+template <class T, template <class, class> class Container>
 class Matrix {
-private:
-	using Values = std::deque<std::deque<T>>;
+public:
+	using RowType = Container<T, std::allocator<T>>;
 
 public:
 	/**
@@ -43,7 +43,7 @@ public:
 	 * @param row - the row of the cell
 	 * @return T& - the value that the cell contains
 	 */
-	T& operator()(uint32_t column, uint32_t row) {
+	T& operator()(uint32_t row, uint32_t column) {
 		return const_cast<T&>(const_cast<const Matrix*>(this)->operator()(column, row));
 	}
 
@@ -54,13 +54,13 @@ public:
 	 * @param row - the row of the cell
 	 * @return const T& - the value that the cell contains
 	 */
-	const T& operator()(uint32_t column, uint32_t row) const {
+	const T& operator()(uint32_t row, uint32_t column) const {
 		if(column >= Columns() || row >= Rows()) {
 			throw std::runtime_error("Size of the matrix is smaller than the provided position");
 		}
 
-		auto& matrix_row = values_.at(row);
-		return matrix_row.at(column);
+		const auto index = (row * columns_) + column;
+		return values_.at(index);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public:
 	 * @return size_t - the amount of rows
 	 */
 	size_t Rows() const {
-		return values_.size();
+		return rows_;
 	}
 
 	/**
@@ -78,7 +78,7 @@ public:
 	 * @return size_t - the amount of columns
 	 */
 	size_t Columns() const {
-		return Rows() == 0 ? 0 : values_.at(0).size();
+		return columns_;
 	}
 
 	/**
@@ -86,14 +86,26 @@ public:
 	 * 
 	 * @param value - the row to insert
 	 */
-	void InsertRow(const std::deque<T>& value) {
-		// TODO : add a check
+	void InsertRow(RowType&& value) {
+		// TODO : add a check for the size of the new row
 
-		values_.push_back(value);
+		if(rows_ == 0) {
+			columns_ = value.size();
+		}
+
+		// Insert all the values from the row to the end of the container
+		values_.insert(values_.end(),
+					   std::make_move_iterator(value.begin()),
+					   std::make_move_iterator(value.end()));
+
+		// Increment the amount of rows
+		++rows_;
 	}
 
 private:
-	Values values_;
+	Container<T, std::allocator<T>> values_;
+	size_t rows_{};
+	size_t columns_{};
 };
 } // namespace math
 
@@ -105,11 +117,11 @@ private:
  * @param matrix - the matrix to print
  * @return std::ostream& - the same stream
  */
-template <class T>
-std::ostream& operator<<(std::ostream& stream, const math::Matrix<T>& matrix) {
+template <class T, template <class, class> class Container>
+std::ostream& operator<<(std::ostream& stream, const math::Matrix<T, Container>& matrix) {
 	for(uint32_t row{}; row < matrix.Rows(); ++row) {
 		for(uint32_t column{}; column < matrix.Columns(); ++column) {
-			stream << matrix(column, row) << " ";
+			stream << matrix(row, column) << " ";
 		}
 		stream << std::endl;
 	}

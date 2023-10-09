@@ -20,6 +20,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "io/file/iparser.hpp"
 #include "io/reader.hpp"
@@ -32,7 +33,7 @@ namespace io::file::tsp {
  */
 class Parser : virtual public IParser {
 public:
-	using DistanceMatrix = math::Matrix<int32_t>;
+	using DistanceMatrix = math::Matrix<int32_t, std::vector>;
 	using Data = io::Reader::Data;
 
 public:

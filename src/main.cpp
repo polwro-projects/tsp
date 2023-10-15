@@ -17,14 +17,21 @@
  * under the License.
  */
 
+#include <memory>
 #include <string>
 
 #include "application.hpp"
 
 int main(int argc, char** argv) {
-	const std::string config_file{"config.ini"};
-	Application app{config_file};
-	app.Start();
+	std::unique_ptr<Application> application;
+
+	if(argc == 2) {
+		// Get the name of the configuration file
+		const std::string config_file{argv[1]};
+
+		application = std::make_unique<Application>(config_file);
+		application->Start();
+	}
 
 	return 0;
 }

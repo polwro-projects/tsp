@@ -21,38 +21,40 @@
 #include <fstream>
 #include <string>
 
+#include "app/iapplication.hpp"
 #include "io/file/ini/parser.hpp"
-#include "io/file/tsp/parser.hpp"
 
+namespace app {
 /**
  * @brief This class represents the application and is used to pass data from parsers to the algorithms and print the output
  * 
  */
-class Application final {
-	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
+class PreconfiguredApplication : public IApplication {
+	using DistanceMatrix = IApplication::DistanceMatrix;
 
 public:
 	/**
-	 * @brief Construct a new Application object
+	 * @brief Construct a new PreconfiguredApplication object
 	 * 
 	 * @param config_file - the path to the configuration file
 	 */
-	Application(const std::string& config_file);
+	PreconfiguredApplication(const std::string& config_file);
 
 	/**
-	 * @brief Destroy the Application object
+	 * @brief Destroy the PreconfiguredApplication object
 	 * 
 	 */
-	~Application();
+	virtual ~PreconfiguredApplication();
 
 public:
 	/**
 	 * @brief Start the application execution
 	 * 
 	 */
-	void Start();
+	void Start() override;
 
-private:
+protected:
 	io::file::ini::Parser::Parameters parameters_;
 	std::ofstream output_file_;
 };
+} // namespace app

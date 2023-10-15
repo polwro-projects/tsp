@@ -17,7 +17,7 @@
  * under the License.
  */
 
-#include "application.hpp"
+#include "app/preconfigured_application.hpp"
 
 #include <chrono>
 
@@ -25,7 +25,8 @@
 #include "math/matrix.hpp"
 #include "tsp.hpp"
 
-Application::Application(const std::string& config_file) {
+namespace app {
+PreconfiguredApplication::PreconfiguredApplication(const std::string& config_file) {
 	// Read the parameters
 	io::Reader reader(config_file);
 	if(!reader.Process()) {
@@ -48,11 +49,11 @@ Application::Application(const std::string& config_file) {
 	output_file_.open(iterator->properties.at("filename"));
 }
 
-Application::~Application() {
+PreconfiguredApplication::~PreconfiguredApplication() {
 	output_file_.close();
 }
 
-void Application::Start() {
+void PreconfiguredApplication::Start() {
 	for(const auto& section : parameters_) {
 		// Skip the output section as it was checked already
 		if(section.name == "output") {
@@ -98,3 +99,4 @@ void Application::Start() {
 		output_file_ << std::endl;
 	}
 }
+} // namespace app

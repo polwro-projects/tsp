@@ -3,11 +3,16 @@
 project ("TSP")
 
 set(SOURCES
+	"src/app/preconfigured_application.cpp"
+	"src/app/menu_application.cpp"
 	"src/io/file/ini/parser.cpp"
 	"src/io/file/tsp/parser.cpp"
 	"src/io/reader.cpp"
+	"src/ui/menu/callable_entry.cpp"
+	"src/ui/menu/entry.cpp"
+	"src/ui/menu/submenu.cpp"
+	"src/ui/menu.cpp"
 	"src/utils/tokenizer.cpp"
-	"src/application.cpp"
 	"src/main.cpp"
 	"src/tsp.cpp"
 	)

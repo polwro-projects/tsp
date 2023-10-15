@@ -20,18 +20,23 @@
 #include <memory>
 #include <string>
 
-#include "application.hpp"
+#include "app/menu_application.hpp"
+#include "app/preconfigured_application.hpp"
 
 int main(int argc, char** argv) {
-	std::unique_ptr<Application> application;
+	using namespace app;
 
+	std::unique_ptr<IApplication> application;
 	if(argc == 2) {
 		// Get the name of the configuration file
 		const std::string config_file{argv[1]};
 
-		application = std::make_unique<Application>(config_file);
-		application->Start();
+		application = std::make_unique<PreconfiguredApplication>(config_file);
+	} else {
+		application = std::make_unique<MenuApplication>();
 	}
+
+	application->Start();
 
 	return 0;
 }

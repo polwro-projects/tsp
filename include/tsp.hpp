@@ -28,7 +28,7 @@
 class TSP {
 public:
 	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
-	using PositionList = std::deque<uint32_t>;
+	using PositionList = std::vector<uint32_t>;
 
 public:
 	/**

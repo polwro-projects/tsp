@@ -22,6 +22,7 @@
 #include <chrono>
 
 #include "math/matrix.hpp"
+#include "tsp/algorithm/bb/dfs.hpp"
 #include "tsp/algorithm/bf.hpp"
 #include "ui/menu/callable_entry.hpp"
 #include "ui/menu/submenu.hpp"
@@ -29,9 +30,8 @@
 std::ostream& operator<<(std::ostream& stream,
 						 tsp::algorithm::Algorithm::Solution::Path positions) {
 	for(const auto position : positions) {
-		stream << position << "->";
+		stream << position << " ";
 	}
-	stream << positions.at(0) << std::endl;
 	return stream;
 }
 
@@ -65,29 +65,24 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	auto print_entry = std::make_shared<menu::CallableEntry>(
 		"Print current matrix", [this]() { std::cout << distance_matrix_ << std::endl; });
 
-	auto calculate_entry = std::make_shared<menu::CallableEntry>("Calculate the TSP", [this]() {
-		tsp::algorithm::BF tsp{distance_matrix_};
+	auto bf_entry =
+		std::make_shared<menu::CallableEntry>("Calculate the TSP using BF (Brute Force)", [this]() {
+			tsp::algorithm::BF bf{distance_matrix_};
+			RunTest(bf);
+		});
 
-		// Calculate the result and get the time of function's execution
-		const auto start_point = std::chrono::system_clock::now();
-		tsp.Solve();
-		const auto end_point = std::chrono::system_clock::now();
-
-		// Store the duration of the operation
-		const auto duration =
-			std::chrono::duration_cast<std::chrono::microseconds>(end_point - start_point);
-		std::cout << duration.count() << ",";
-
-		// Print the solution to the output file
-		const auto solution = tsp.GetSolution();
-		std::cout << solution.path << std::endl;
-	});
+	auto bnb_dfs_entry = std::make_shared<menu::CallableEntry>(
+		"Calculate the TSP using BB (Branch and Bound) algorithm with DFS", [this]() {
+			tsp::algorithm::bb::DFS dfs{distance_matrix_};
+			RunTest(dfs);
+		});
 
 	auto menu = std::make_unique<Menu>();
 	auto root_entry = std::make_shared<menu::Submenu>("Main menu", menu.get());
 	root_entry->AddChild(read_entry);
 	root_entry->AddChild(print_entry);
-	root_entry->AddChild(calculate_entry);
+	root_entry->AddChild(bf_entry);
+	root_entry->AddChild(bnb_dfs_entry);
 	root_entry->Enter();
 
 	return menu;
@@ -115,5 +110,21 @@ std::string MenuApplication::GetInputFile() {
 	std::cin >> filename;
 
 	return filename;
+}
+
+void MenuApplication::RunTest(tsp::algorithm::Algorithm& algorithm) const {
+	// Calculate the result and get the time of function's execution
+	const auto start_point = std::chrono::system_clock::now();
+	algorithm.Solve();
+	const auto end_point = std::chrono::system_clock::now();
+
+	// Store the duration of the operation
+	const auto duration =
+		std::chrono::duration_cast<std::chrono::microseconds>(end_point - start_point);
+	std::cout << duration.count() << ",";
+
+	// Print the solution to the output file
+	const auto solution = algorithm.GetSolution();
+	std::cout << solution.path << std::endl;
 }
 } // namespace app

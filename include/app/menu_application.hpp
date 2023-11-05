@@ -22,6 +22,7 @@
 
 #include "app/iapplication.hpp"
 #include "io/file/ini/parser.hpp"
+#include "tsp/algorithm/algorithm.hpp"
 #include "ui/menu.hpp"
 
 namespace app {
@@ -74,6 +75,8 @@ protected:
 	 * @return std::unique_ptr<ui::Menu> - the pointer to the menu
 	 */
 	std::unique_ptr<ui::Menu> CreateMenu();
+
+	void RunTest(tsp::algorithm::Algorithm& algorithm) const;
 
 protected:
 	DistanceMatrix distance_matrix_;

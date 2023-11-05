@@ -32,7 +32,7 @@ DFS::DFS(DistanceMatrix distances)
 	}
 }
 
-Algorithm::Solution DFS::Solve() {
+void DFS::Solve() {
 	Solution partial_solution{{0}, 0};
 	while(!stack_.empty()) {
 		const auto [vertex, level] = stack_.top();

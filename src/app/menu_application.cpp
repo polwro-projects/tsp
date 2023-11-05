@@ -22,11 +22,12 @@
 #include <chrono>
 
 #include "math/matrix.hpp"
-#include "tsp.hpp"
+#include "tsp/algorithm/bf.hpp"
 #include "ui/menu/callable_entry.hpp"
 #include "ui/menu/submenu.hpp"
 
-std::ostream& operator<<(std::ostream& stream, TSP::PositionList positions) {
+std::ostream& operator<<(std::ostream& stream,
+						 tsp::algorithm::Algorithm::Solution::Path positions) {
 	for(const auto position : positions) {
 		stream << position << "->";
 	}
@@ -65,11 +66,11 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 		"Print current matrix", [this]() { std::cout << distance_matrix_ << std::endl; });
 
 	auto calculate_entry = std::make_shared<menu::CallableEntry>("Calculate the TSP", [this]() {
-		TSP tsp{distance_matrix_};
+		tsp::algorithm::BF tsp{distance_matrix_};
 
 		// Calculate the result and get the time of function's execution
 		const auto start_point = std::chrono::system_clock::now();
-		const auto solution = tsp.Solve();
+		tsp.Solve();
 		const auto end_point = std::chrono::system_clock::now();
 
 		// Store the duration of the operation
@@ -78,7 +79,8 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 		std::cout << duration.count() << ",";
 
 		// Print the solution to the output file
-		std::cout << solution << std::endl;
+		const auto solution = tsp.GetSolution();
+		std::cout << solution.path << std::endl;
 	});
 
 	auto menu = std::make_unique<Menu>();

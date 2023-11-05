@@ -23,7 +23,7 @@
 
 #include "io/reader.hpp"
 #include "math/matrix.hpp"
-#include "tsp.hpp"
+#include "tsp/algorithm/bf.hpp"
 
 namespace app {
 PreconfiguredApplication::PreconfiguredApplication(const std::string& config_file) {
@@ -76,11 +76,11 @@ void PreconfiguredApplication::Start() {
 		}
 
 		// Create the TSP solver instance from the given matrix and find the solution
-		TSP tsp{parser.Get()};
+		tsp::algorithm::BF tsp{parser.Get()};
 		for(uint32_t index{1}; index <= std::stoi(section.properties.at("count")); ++index) {
 			// Calculate the result and get the time of function's execution
 			const auto start_point = std::chrono::system_clock::now();
-			const auto solution = tsp.Solve();
+			tsp.Solve();
 			const auto end_point = std::chrono::system_clock::now();
 
 			// Store the duration of the operation
@@ -89,10 +89,11 @@ void PreconfiguredApplication::Start() {
 			output_file_ << duration.count() << ",";
 
 			// Print the solution to the output file
-			for(const auto position : solution) {
+			const auto solution = tsp.GetSolution();
+			for(const auto position : solution.path) {
 				output_file_ << position << "->";
 			}
-			output_file_ << solution.at(0) << std::endl;
+			output_file_ << solution.path.at(0) << std::endl;
 		}
 
 		// Visually separate sections

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,37 +17,29 @@
  * under the License.
  */
 
-#pragma once
+#include "tsp/algorithm/algorithm.hpp"
 
-#include <functional>
-#include <memory>
-#include <string>
+namespace tsp::algorithm {
+Algorithm::Algorithm(DistanceMatrix distances)
+	: distances_{distances} {
+	if(distances_.Rows() != distances_.Columns()) {
+		throw std::runtime_error("The distances matrix has incorrect size");
+	}
+}
 
-#include "ui/menu/entry.hpp"
+Algorithm::Solution Algorithm::GetSolution() const noexcept {
+	return solution_;
+}
 
-namespace ui::menu {
-/**
- * @brief The class represents a callable entry of a menu
- * 
- */
-class CallableEntry : public Entry {
-public:
-	/**
-	 * @brief Construct a new Callable Entry object
-	 * 
-	 * @param name - the name of the menu
-	 * @param callback - the callback to be called when this menu is chosen
-	 */
-	CallableEntry(std::string name, std::function<void()> callback);
+void Algorithm::Clear() {
+	// Clear the previous solution
+	solution_.Clear();
+}
 
-public:
-	/**
-	 * @brief Enter the menu entry
-	 * 
-	 */
-	void Enter();
+void Algorithm::Solution::Clear() {
+	path.clear();
 
-protected:
-	std::function<void()> callback_;
-};
-} // namespace ui::menu
+	cost = std::numeric_limits<uint32_t>::max();
+}
+
+} // namespace tsp::algorithm

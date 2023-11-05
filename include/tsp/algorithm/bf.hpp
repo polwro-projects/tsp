@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,41 +19,39 @@
 
 #pragma once
 
-#include <deque>
-#include <list>
+#include <stack>
 
-#include "io/file/tsp/parser.hpp"
 #include "math/matrix.hpp"
+#include "tsp/algorithm/algorithm.hpp"
 
-class TSP {
+namespace tsp::algorithm {
+class BF : public Algorithm {
 public:
-	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
-	using PositionList = std::vector<uint32_t>;
-
-public:
-	/**
-	 * @brief Construct a new TSP object
-	 * 
-	 * @param distances - the distance matrix to work on
-	 */
-	TSP(DistanceMatrix distances);
+	using DistanceMatrix = Algorithm::DistanceMatrix;
 
 public:
 	/**
-	 * @brief Solve the TS problem 
+	 * @brief Construct a new DFS object
 	 * 
-	 * @return PositionList - the solution to the problem
+	 * @param distances - the distance matrix to use
 	 */
-	PositionList Solve() const;
+	BF(DistanceMatrix distances);
+
+public:
+	/**
+	 * @brief Solve the problem
+	 * 
+	 */
+	void Solve() override;
 
 private:
 	/**
 	 * @brief Generate the initial set of positions
 	 * 
 	 * @param size - the size of the list
-	 * @return PositionList - the list of positions
+	 * @return Solution::Path - the list of positions
 	 */
-	static PositionList GeneratePositionList(uint32_t size);
+	static Solution::Path GeneratePath(uint32_t size);
 
 	/**
 	 * @brief Get the length of the given path
@@ -61,9 +59,6 @@ private:
 	 * @param value - the path to calculate the length for
 	 * @return uint32_t - the length of the path
 	 */
-	uint32_t CalculateDistance(const PositionList& value) const;
-
-private:
-	DistanceMatrix distances_;
-	uint32_t positions_;
+	uint32_t CalculateCost(const Solution::Path& value) const;
 };
+} // namespace tsp::algorithm

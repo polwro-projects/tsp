@@ -19,10 +19,12 @@
 #pragma once
 
 #include <fstream>
+#include <memory>
 #include <string>
 
 #include "app/iapplication.hpp"
 #include "io/file/ini/parser.hpp"
+#include "tsp/algorithm/algorithm.hpp"
 
 namespace app {
 /**
@@ -52,6 +54,24 @@ public:
 	 * 
 	 */
 	void Start() override;
+
+protected:
+	/**
+	 * @brief Run the algorithm on the given distance matrix and print the results
+	 * 
+	 * @param algorithm - the algorithm to use
+	 */
+	void RunTest(tsp::algorithm::Algorithm* algorithm);
+
+	/**
+	 * @brief Create an algorithm based on the input
+	 * 
+	 * @param value - the name of the algorithm
+	 * @param matrix - the distance matrix 
+	 * @return std::unique_ptr<tsp::algorithm::Algorithm> 
+	 */
+	static std::unique_ptr<tsp::algorithm::Algorithm> CreateAlgorithm(const std::string& value,
+																	  const DistanceMatrix& matrix);
 
 protected:
 	io::file::ini::Parser::Parameters parameters_;

@@ -76,6 +76,11 @@ protected:
 	 */
 	std::unique_ptr<ui::Menu> CreateMenu();
 
+	/**
+	 * @brief Run the algorithm on the given distance matrix and print the results
+	 * 
+	 * @param algorithm - the algorithm to use
+	 */
 	void RunTest(tsp::algorithm::Algorithm& algorithm) const;
 
 protected:

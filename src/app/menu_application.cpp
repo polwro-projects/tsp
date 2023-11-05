@@ -125,6 +125,6 @@ void MenuApplication::RunTest(tsp::algorithm::Algorithm& algorithm) const {
 
 	// Print the solution to the output file
 	const auto solution = algorithm.GetSolution();
-	std::cout << solution.path << std::endl;
+	std::cout << solution.path << ", " << solution.cost << std::endl;
 }
 } // namespace app

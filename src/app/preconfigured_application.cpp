@@ -23,6 +23,7 @@
 
 #include "io/reader.hpp"
 #include "math/matrix.hpp"
+#include "tsp/algorithm/bb/dfs.hpp"
 #include "tsp/algorithm/bf.hpp"
 
 namespace app {
@@ -75,29 +76,55 @@ void PreconfiguredApplication::Start() {
 			throw std::runtime_error("Parsing the TSP file failed");
 		}
 
+		// Get the algorithm type
+		std::string algorithm_type;
+		try {
+			algorithm_type = section.properties.at("algorithm");
+		} catch(const std::exception& e) {
+			throw std::runtime_error("No algorithm specified.");
+		}
+
 		// Create the TSP solver instance from the given matrix and find the solution
-		tsp::algorithm::BF tsp{parser.Get()};
+		auto tsp = CreateAlgorithm(algorithm_type, parser.Get());
 		for(uint32_t index{1}; index <= std::stoi(section.properties.at("count")); ++index) {
-			// Calculate the result and get the time of function's execution
-			const auto start_point = std::chrono::system_clock::now();
-			tsp.Solve();
-			const auto end_point = std::chrono::system_clock::now();
+			RunTest(tsp.get());
 
-			// Store the duration of the operation
-			const auto duration =
-				std::chrono::duration_cast<std::chrono::microseconds>(end_point - start_point);
-			output_file_ << duration.count() << ",";
-
-			// Print the solution to the output file
-			const auto solution = tsp.GetSolution();
-			for(const auto position : solution.path) {
-				output_file_ << position << "->";
-			}
-			output_file_ << solution.path.at(0) << std::endl;
+			// Clear the internal solution
+			tsp->Clear();
 		}
 
 		// Visually separate sections
 		output_file_ << std::endl;
 	}
+}
+
+void PreconfiguredApplication::RunTest(tsp::algorithm::Algorithm* algorithm) {
+	// Calculate the result and get the time of function's execution
+	const auto start_point = std::chrono::system_clock::now();
+	algorithm->Solve();
+	const auto end_point = std::chrono::system_clock::now();
+
+	// Store the duration of the operation
+	const auto duration =
+		std::chrono::duration_cast<std::chrono::microseconds>(end_point - start_point);
+	output_file_ << duration.count() << ",";
+
+	// Print the solution to the output file
+	const auto solution = algorithm->GetSolution();
+	for(const auto position : solution.path) {
+		output_file_ << position << " ";
+	}
+	output_file_ << ", " << solution.cost << std::endl;
+}
+
+std::unique_ptr<tsp::algorithm::Algorithm>
+PreconfiguredApplication::CreateAlgorithm(const std::string& value, const DistanceMatrix& matrix) {
+	if(value == "bf") {
+		return std::make_unique<tsp::algorithm::BF>(matrix);
+	} else if(value == "bnb_dfs") {
+		return std::make_unique<tsp::algorithm::bb::DFS>(matrix);
+	}
+
+	return {};
 }
 } // namespace app

@@ -8,6 +8,7 @@ set(SOURCES
 	"src/io/file/ini/parser.cpp"
 	"src/io/file/tsp/parser.cpp"
 	"src/io/reader.cpp"
+	"src/tsp/algorithm/bb/dfs.cpp"
 	"src/tsp/algorithm/algorithm.cpp"
 	"src/tsp/algorithm/bf.cpp"
 	"src/ui/menu/callable_entry.cpp"

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,31 +16,54 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 #pragma once
 
-#include "io/file/tsp/parser.hpp"
+#include <stack>
 
-namespace app {
-/**
- * @brief This class represents the application class interface
- * 
- */
-class IApplication {
+#include "math/matrix.hpp"
+#include "tsp/algorithm/algorithm.hpp"
+
+namespace tsp::algorithm::bb {
+class DFS : public Algorithm {
+public:
+	using DistanceMatrix = Algorithm::DistanceMatrix;
+
+	struct Node {
+		uint32_t vertex;
+		uint32_t level;
+	};
+
+public:
+	/**
+	 * @brief Construct a new DFS object
+	 * 
+	 * @param distances - the distance matrix to use
+	 */
+	DFS(DistanceMatrix distances);
+
+public:
+	/**
+	 * @brief Solve the problem
+	 * 
+	 */
+	void Solve() override;
+
+	/**
+	 * @brief Clear the internal state of the algorithm
+	 * 
+	 */
+	void Clear() override;
+
 protected:
-	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
+	void Backtrack(Solution& solution, uint32_t level);
 
-public:
-	/**
-	 * @brief Destroy the IApplication object
-	 * 
-	 */
-	virtual ~IApplication() = default;
+	bool AcceptSolution(Solution& solution);
 
-public:
-	/**
-	 * @brief Start the application execution
-	 * 
-	 */
-	virtual void Start() = 0;
+	bool IsSolutionComplete(Solution& solution) const noexcept;
+
+private:
+	std::stack<Node> stack_;
+	std::vector<bool> is_visited_;
 };
-} // namespace app
+} // namespace tsp::algorithm::bb

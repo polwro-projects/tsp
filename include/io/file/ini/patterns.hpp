@@ -22,5 +22,5 @@
 #include <regex>
 
 namespace io::file::ini {
-const std::regex kSectionHeaderPattern("\\[([a-zA-Z0-9\\_]{1,25})\\]");
+const std::regex kSectionHeaderPattern("\\[([a-zA-Z0-9]{1,25})\\]");
 }

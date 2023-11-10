@@ -155,7 +155,7 @@ MenuApplication::DistanceMatrix MenuApplication::GenerateRandomMatrix(uint32_t s
 				continue;
 			}
 
-			// FIXME: todo
+			// Generate a random value to be used as a distance
 			const auto value = GetRandomNumber(1, size);
 			row.push_back(value);
 		}

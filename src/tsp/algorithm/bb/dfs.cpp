@@ -94,7 +94,7 @@ bool DFS::AcceptSolution(Solution& solution) {
 	if(cost < solution_.cost) {
 		solution_ = solution;
 
-		//
+		// Add the last element of the path to create a loop
 		solution_.cost = cost;
 		solution_.path.push_back(0);
 

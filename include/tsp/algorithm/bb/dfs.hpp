@@ -29,6 +29,10 @@ class DFS : public Algorithm {
 public:
 	using DistanceMatrix = Algorithm::DistanceMatrix;
 
+	/**
+	 * @brief This struct represents a solution node in the tree of solutions
+	 * 
+	 */
 	struct Node {
 		uint32_t vertex;
 		uint32_t level;
@@ -56,10 +60,30 @@ public:
 	void Clear() override;
 
 protected:
+	/**
+	 * @brief Undo the last move in the solution
+	 * 
+	 * @param solution - the solution to modify
+	 * @param level - the level of the solution
+	 */
 	void Backtrack(Solution& solution, uint32_t level);
 
+	/**
+	 * @brief Check if the solution can be accepted
+	 * 
+	 * @param solution - the solution to check
+	 * @return true - if the solution can be accepted as a new best solution
+	 * @return false otherwise
+	 */
 	bool AcceptSolution(Solution& solution);
 
+	/**
+	 * @brief Check if the solution is complete
+	 * 
+	 * @param solution - the solution to check
+	 * @return true - if the solution is complete
+	 * @return false otherwise
+	 */
 	bool IsSolutionComplete(Solution& solution) const noexcept;
 
 private:

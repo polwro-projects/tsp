@@ -83,8 +83,21 @@ protected:
 	 */
 	void RunTest(tsp::algorithm::Algorithm& algorithm) const;
 
+	/**
+	 * @brief Generate a random matrix of the given size
+	 * 
+	 * @param size - the size of the matrix
+	 * @return DistanceMatrix 
+	 */
 	static DistanceMatrix GenerateRandomMatrix(uint32_t size);
 
+	/**
+	 * @brief Get a random number which lies in the given range
+	 * 
+	 * @param min - the start of the range
+	 * @param max - the end of the range
+	 * @return uint32_t - a totally random number
+	 */
 	static uint32_t GetRandomNumber(uint32_t min, uint32_t max);
 
 protected:

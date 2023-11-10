@@ -28,7 +28,7 @@ DFS::DFS(DistanceMatrix distances)
 	, is_visited_{std::vector<bool>(distances_.Rows())} {
 	// Create the starting stack of vertexes to visit
 	for(uint32_t vertex = 1; vertex < distances_.Rows(); ++vertex) {
-		stack_.emplace(vertex, 1);
+		stack_.push({vertex, 1});
 	}
 }
 
@@ -52,7 +52,7 @@ void DFS::Solve() {
 			const auto size = distances_.Rows();
 			for(uint32_t child = 1; child < size; ++child) {
 				if(child != vertex && !is_visited_.at(child)) {
-					stack_.emplace(child, level + 1);
+					stack_.push({child, level + 1});
 				}
 			}
 		}
@@ -72,7 +72,7 @@ void DFS::Clear() {
 
 	// Re-create the starting stack of the vertexes to visit
 	for(uint32_t vertex = 1; vertex < distances_.Rows(); ++vertex) {
-		stack_.emplace(vertex, 1);
+		stack_.push({vertex, 1});
 	}
 }
 

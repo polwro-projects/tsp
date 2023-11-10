@@ -83,6 +83,10 @@ protected:
 	 */
 	void RunTest(tsp::algorithm::Algorithm& algorithm) const;
 
+	static DistanceMatrix GenerateRandomMatrix(uint32_t size);
+
+	static uint32_t GetRandomNumber(uint32_t min, uint32_t max);
+
 protected:
 	DistanceMatrix distance_matrix_;
 	std::unique_ptr<ui::Menu> menu_;

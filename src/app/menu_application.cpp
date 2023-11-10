@@ -20,6 +20,7 @@
 #include "app/menu_application.hpp"
 
 #include <chrono>
+#include <random>
 
 #include "math/matrix.hpp"
 #include "tsp/algorithm/bb/dfs.hpp"
@@ -62,6 +63,21 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 		distance_matrix_ = std::move(ReadMatrix(filename));
 	});
 
+	auto generate_entry =
+		std::make_shared<menu::CallableEntry>("Generate a random matrix", [this]() {
+			uint32_t size;
+			std::cout << "Please, enter the size of the matrix: ";
+			std::cin >> size;
+
+			// Handle some smartasses' requests to generate 0x0 matrixes
+			if(size == 0) {
+				std::cout << "The size is incorrect. Please, try again." << std::endl;
+				return;
+			}
+
+			distance_matrix_ = std::move(GenerateRandomMatrix(size));
+		});
+
 	auto print_entry = std::make_shared<menu::CallableEntry>(
 		"Print current matrix", [this]() { std::cout << distance_matrix_ << std::endl; });
 
@@ -80,6 +96,7 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	auto menu = std::make_unique<Menu>();
 	auto root_entry = std::make_shared<menu::Submenu>("Main menu", menu.get());
 	root_entry->AddChild(read_entry);
+	root_entry->AddChild(generate_entry);
 	root_entry->AddChild(print_entry);
 	root_entry->AddChild(bf_entry);
 	root_entry->AddChild(bnb_dfs_entry);
@@ -126,5 +143,32 @@ void MenuApplication::RunTest(tsp::algorithm::Algorithm& algorithm) const {
 	// Print the solution to the output file
 	const auto solution = algorithm.GetSolution();
 	std::cout << solution.path << ", " << solution.cost << std::endl;
+}
+
+MenuApplication::DistanceMatrix MenuApplication::GenerateRandomMatrix(uint32_t size) {
+	DistanceMatrix matrix;
+	for(uint32_t row_index = 0; row_index < size; ++row_index) {
+		DistanceMatrix::RowType row;
+		for(uint32_t column_index = 0; column_index < size; ++column_index) {
+			if(column_index == row_index) {
+				row.push_back(-1);
+				continue;
+			}
+
+			// FIXME: todo
+			const auto value = GetRandomNumber(1, size);
+			row.push_back(value);
+		}
+
+		matrix.InsertRow(std::move(row));
+	}
+	return std::move(matrix);
+}
+
+uint32_t MenuApplication::GetRandomNumber(uint32_t min, uint32_t max) {
+	std::random_device dev;
+	std::mt19937 rng(dev());
+	std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
+	return dist(rng);
 }
 } // namespace app

@@ -59,6 +59,12 @@ public:
 	 */
 	explicit Algorithm(DistanceMatrix distances);
 
+	/**
+	 * @brief Destroy the Algorithm object
+	 * 
+	 */
+	virtual ~Algorithm() {}
+
 public:
 	/**
 	 * @brief Solve the problem

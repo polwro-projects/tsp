@@ -47,6 +47,9 @@ void BF::Solve() {
 		// Save the best result
 		solution_ = {position_list, distance};
 	} while(std::next_permutation(position_list.begin(), position_list.end()));
+
+	solution_.cost += distances_(solution_.path.back(), 0);
+	solution_.path.push_back(0);
 }
 
 BF::Solution::Path BF::GeneratePath(uint32_t size) {

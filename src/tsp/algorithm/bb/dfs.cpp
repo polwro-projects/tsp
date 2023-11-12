@@ -27,33 +27,38 @@ DFS::DFS(DistanceMatrix distances)
 	: Algorithm{distances}
 	, is_visited_{std::vector<bool>(distances_.Rows())} {
 	// Create the starting stack of vertexes to visit
+	Solution solution{{0}, 0};
 	for(uint32_t vertex = 1; vertex < distances_.Rows(); ++vertex) {
-		stack_.push({vertex, 1});
+		const auto bound = CalculateLowerBound(solution, vertex);
+		stack_.push({vertex, 1, bound});
 	}
 }
 
 void DFS::Solve() {
 	Solution partial_solution{{0}, 0};
 	while(!stack_.empty()) {
-		const auto [vertex, level] = stack_.top();
+		const auto [vertex, level, bound] = stack_.top();
 		stack_.pop();
+
+		// Don't do anything if the bound is greater than the best solution so far
+		if(bound > solution_.cost) {
+			continue;
+		}
 
 		// Going up the hierarchy to get to the next path
 		Backtrack(partial_solution, partial_solution.path.size() - level);
 
-		const auto cost = partial_solution.cost + distances_(partial_solution.path.back(), vertex);
-		if(cost < solution_.cost) {
-			// Visit the vertex and add it to the current path
-			partial_solution.path.push_back(vertex);
-			partial_solution.cost = cost;
-			is_visited_.at(vertex) = true;
+		// Visit the vertex and add it to the current path
+		partial_solution.cost += distances_(partial_solution.path.back(), vertex);
+		partial_solution.path.push_back(vertex);
+		is_visited_.at(vertex) = true;
 
-			// Checking all the children of the current vertex
-			const auto size = distances_.Rows();
-			for(uint32_t child = 1; child < size; ++child) {
-				if(child != vertex && !is_visited_.at(child)) {
-					stack_.push({child, level + 1});
-				}
+		// Checking all the children of the current vertex
+		const auto size = distances_.Rows();
+		for(uint32_t child = 1; child < size; ++child) {
+			if(child != vertex && !is_visited_.at(child)) {
+				const auto child_bound = CalculateLowerBound(partial_solution, child);
+				stack_.push({child, level + 1, child_bound});
 			}
 		}
 
@@ -106,5 +111,41 @@ bool DFS::AcceptSolution(Solution& solution) {
 
 inline bool DFS::IsSolutionComplete(Solution& solution) const noexcept {
 	return solution.path.size() == distances_.Rows();
+}
+
+uint32_t DFS::CalculateLowerBound(const Solution& solution, uint32_t vertex) const noexcept {
+	uint32_t bound = solution.cost + distances_(solution.path.back(), vertex);
+	bound += GetSmallestCost(vertex, is_visited_);
+
+	// "Unvisit" the start of the path to check it too (according to the algorithm)
+	auto visited = is_visited_;
+	visited.at(0) = false;
+
+	// Visit every neighbor that is not visited (yet)
+	for(uint32_t index = 1; index < distances_.Rows(); ++index) {
+		if(visited.at(index)) {
+			continue;
+		}
+
+		bound += GetSmallestCost(index, visited);
+	}
+	return bound;
+}
+
+uint32_t DFS::GetSmallestCost(uint32_t vertex, const std::vector<bool>& visited) const noexcept {
+	auto smallest_cost{std::numeric_limits<uint32_t>::max()};
+	for(uint32_t neighbor = 0; neighbor < distances_.Rows(); ++neighbor) {
+		if(neighbor == vertex || visited.at(neighbor)) {
+			continue;
+		}
+
+		// Get the cost of the path and update the smallest one if necessary
+		const auto cost = distances_(vertex, neighbor);
+		if(cost < smallest_cost) {
+			smallest_cost = cost;
+		}
+	}
+
+	return smallest_cost;
 }
 } // namespace tsp::algorithm::bb

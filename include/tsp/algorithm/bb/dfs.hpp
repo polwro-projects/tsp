@@ -36,6 +36,7 @@ public:
 	struct Node {
 		uint32_t vertex;
 		uint32_t level;
+		uint32_t bound;
 	};
 
 public:
@@ -85,6 +86,24 @@ protected:
 	 * @return false otherwise
 	 */
 	bool IsSolutionComplete(Solution& solution) const noexcept;
+
+	/**
+	 * @brief Calculate the lower bound of the vertex
+	 * 
+	 * @param solution - the partial solution to check
+	 * @param vertex - the vertex to check
+	 * @return uint32_t - the lower bound of the vertex
+	 */
+	uint32_t CalculateLowerBound(const Solution& solution, uint32_t vertex) const noexcept;
+
+	/**
+	 * @brief Get the smallest cost of getting to any neighbor of the given vertex
+	 * 
+	 * @param vertex - the vertex to check
+	 * @param visited - the list of neighbors not to check
+	 * @return uint32_t - the smallest cost
+	 */
+	uint32_t GetSmallestCost(uint32_t vertex, const std::vector<bool>& visited) const noexcept;
 
 private:
 	std::stack<Node> stack_;

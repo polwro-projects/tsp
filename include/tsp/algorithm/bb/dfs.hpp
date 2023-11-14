@@ -105,8 +105,16 @@ protected:
 	 */
 	uint32_t GetSmallestCost(uint32_t vertex, const std::vector<bool>& visited) const noexcept;
 
+	/**
+	 * @brief "Visit" the given vertex
+	 * 
+	 * @param solution - the solution to update
+	 * @param vertex - the vertex to "visit"
+	 */
+	void VisitVertex(Solution& solution, uint32_t vertex);
+
 private:
-	std::stack<Node> stack_;
+	std::stack<Node, std::vector<Node>> stack_;
 	std::vector<bool> is_visited_;
 };
 } // namespace tsp::algorithm::bb

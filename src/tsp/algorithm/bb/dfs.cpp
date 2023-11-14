@@ -27,10 +27,8 @@ DFS::DFS(DistanceMatrix distances)
 	: Algorithm{distances}
 	, is_visited_{std::vector<bool>(distances_.Rows())} {
 	// Create the starting stack of vertexes to visit
-	Solution solution{{0}, 0};
 	for(uint32_t vertex = 1; vertex < distances_.Rows(); ++vertex) {
-		const auto bound = CalculateLowerBound(solution, vertex);
-		stack_.push({vertex, 1, bound});
+		stack_.push({vertex, 1, 0});
 	}
 }
 
@@ -41,25 +39,29 @@ void DFS::Solve() {
 		stack_.pop();
 
 		// Don't do anything if the bound is greater than the best solution so far
-		if(bound > solution_.cost) {
+		if(bound >= solution_.cost) {
 			continue;
 		}
 
-		// Going up the hierarchy to get to the next path
-		Backtrack(partial_solution, partial_solution.path.size() - level);
-
+		// Undo some steps to explore the tree further (DFS)
+		const auto steps = partial_solution.path.size() - level;
+		if (steps != 0) {
+			Backtrack(partial_solution, steps);
+		}
+		
 		// Visit the vertex and add it to the current path
-		partial_solution.cost += distances_(partial_solution.path.back(), vertex);
-		partial_solution.path.push_back(vertex);
-		is_visited_.at(vertex) = true;
+		VisitVertex(partial_solution, vertex);
 
 		// Checking all the children of the current vertex
 		const auto size = distances_.Rows();
 		for(uint32_t child = 1; child < size; ++child) {
-			if(child != vertex && !is_visited_.at(child)) {
-				const auto child_bound = CalculateLowerBound(partial_solution, child);
-				stack_.push({child, level + 1, child_bound});
+			// Skip visited children
+			if(is_visited_.at(child)) {
+				continue;
 			}
+			
+			const auto child_bound = CalculateLowerBound(partial_solution, child);
+			stack_.push({child, level + 1, child_bound});
 		}
 
 		// If the path is finished
@@ -77,7 +79,7 @@ void DFS::Clear() {
 
 	// Re-create the starting stack of the vertexes to visit
 	for(uint32_t vertex = 1; vertex < distances_.Rows(); ++vertex) {
-		stack_.push({vertex, 1});
+		stack_.push({vertex, 1, 0});
 	}
 }
 
@@ -86,8 +88,8 @@ void DFS::Backtrack(Solution& solution, uint32_t level) {
 		const auto path_end = solution.path.back();
 
 		// Remove the last vertex in the path
-		solution.cost -= distances_(solution.path.at(solution.path.size() - 2), path_end);
 		solution.path.pop_back();
+		solution.cost -= distances_(solution.path.back(), path_end);
 
 		// Un-visit the last vertex of the current path
 		is_visited_.at(path_end) = false;
@@ -114,27 +116,33 @@ inline bool DFS::IsSolutionComplete(Solution& solution) const noexcept {
 }
 
 uint32_t DFS::CalculateLowerBound(const Solution& solution, uint32_t vertex) const noexcept {
+	// Calculate the partial bound by using information about the given vertex
 	uint32_t bound = solution.cost + distances_(solution.path.back(), vertex);
 	bound += GetSmallestCost(vertex, is_visited_);
 
-	// "Unvisit" the start of the path to check it too (according to the algorithm)
-	auto visited = is_visited_;
-	visited.at(0) = false;
-
 	// Visit every neighbor that is not visited (yet)
 	for(uint32_t index = 1; index < distances_.Rows(); ++index) {
-		if(visited.at(index)) {
+		// Skip already visited vertexes
+		if(is_visited_.at(index) || index == vertex) {
 			continue;
 		}
+		
+		// Cut the computations if the lower bound is already too big
+		if (bound >= solution_.cost) {
+			bound = std::numeric_limits<uint32_t>::max();
+			break;
+		}
 
-		bound += GetSmallestCost(index, visited);
+		bound += GetSmallestCost(index, is_visited_);
 	}
+
 	return bound;
 }
 
 uint32_t DFS::GetSmallestCost(uint32_t vertex, const std::vector<bool>& visited) const noexcept {
 	auto smallest_cost{std::numeric_limits<uint32_t>::max()};
 	for(uint32_t neighbor = 0; neighbor < distances_.Rows(); ++neighbor) {
+		// Skip already visited neighbors
 		if(neighbor == vertex || visited.at(neighbor)) {
 			continue;
 		}
@@ -147,5 +155,14 @@ uint32_t DFS::GetSmallestCost(uint32_t vertex, const std::vector<bool>& visited)
 	}
 
 	return smallest_cost;
+}
+
+void DFS::VisitVertex(Solution& solution, uint32_t vertex)  {
+	// Add the vertex to the given solution
+	solution.cost += distances_(solution.path.back(), vertex);
+	solution.path.push_back(vertex);
+
+	// "Visit" the vertex
+	is_visited_.at(vertex) = true;
 }
 } // namespace tsp::algorithm::bb

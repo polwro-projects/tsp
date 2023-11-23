@@ -32,6 +32,7 @@ namespace tsp::algorithm {
 class Algorithm {
 public:
 	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
+	using VertexType = uint32_t;
 
 public:
 	/**
@@ -39,7 +40,7 @@ public:
 	 * 
 	 */
 	struct Solution {
-		using Path = std::vector<uint32_t>;
+		using Path = std::vector<VertexType>;
 
 		Path path;
 		uint32_t cost{std::numeric_limits<uint32_t>::max()};

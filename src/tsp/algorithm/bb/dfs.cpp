@@ -27,7 +27,7 @@ DFS::DFS(DistanceMatrix distances)
 	: Algorithm{distances}
 	, is_visited_{std::vector<bool>(distances_.Rows())} {
 	// Create the starting stack of vertexes to visit
-	for(uint32_t vertex = 1; vertex < distances_.Rows(); ++vertex) {
+	for(VertexType vertex = 1; vertex < distances_.Rows(); ++vertex) {
 		stack_.push({vertex, 1, 0});
 	}
 }
@@ -54,7 +54,7 @@ void DFS::Solve() {
 
 		// Checking all the children of the current vertex
 		const auto size = distances_.Rows();
-		for(uint32_t child = 1; child < size; ++child) {
+		for(VertexType child = 1; child < size; ++child) {
 			// Skip visited children
 			if(is_visited_.at(child)) {
 				continue;
@@ -115,13 +115,13 @@ inline bool DFS::IsSolutionComplete(Solution& solution) const noexcept {
 	return solution.path.size() == distances_.Rows();
 }
 
-uint32_t DFS::CalculateLowerBound(const Solution& solution, uint32_t vertex) const noexcept {
+uint32_t DFS::CalculateLowerBound(const Solution& solution, VertexType vertex) const noexcept {
 	// Calculate the partial bound by using information about the given vertex
 	uint32_t bound = solution.cost + distances_(solution.path.back(), vertex);
 	bound += GetSmallestCost(vertex, is_visited_);
 
 	// Visit every neighbor that is not visited (yet)
-	for(uint32_t index = 1; index < distances_.Rows(); ++index) {
+	for(VertexType index = 1; index < distances_.Rows(); ++index) {
 		// Skip already visited vertexes
 		if(is_visited_.at(index) || index == vertex) {
 			continue;
@@ -139,9 +139,9 @@ uint32_t DFS::CalculateLowerBound(const Solution& solution, uint32_t vertex) con
 	return bound;
 }
 
-uint32_t DFS::GetSmallestCost(uint32_t vertex, const std::vector<bool>& visited) const noexcept {
+uint32_t DFS::GetSmallestCost(VertexType vertex, const std::vector<bool>& visited) const noexcept {
 	auto smallest_cost{std::numeric_limits<uint32_t>::max()};
-	for(uint32_t neighbor = 0; neighbor < distances_.Rows(); ++neighbor) {
+	for(VertexType neighbor = 0; neighbor < distances_.Rows(); ++neighbor) {
 		// Skip already visited neighbors
 		if(neighbor == vertex || visited.at(neighbor)) {
 			continue;
@@ -157,7 +157,7 @@ uint32_t DFS::GetSmallestCost(uint32_t vertex, const std::vector<bool>& visited)
 	return smallest_cost;
 }
 
-void DFS::VisitVertex(Solution& solution, uint32_t vertex)  {
+void DFS::VisitVertex(Solution& solution, VertexType vertex)  {
 	// Add the vertex to the given solution
 	solution.cost += distances_(solution.path.back(), vertex);
 	solution.path.push_back(vertex);

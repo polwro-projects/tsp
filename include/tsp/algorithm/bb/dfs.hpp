@@ -28,13 +28,14 @@ namespace tsp::algorithm::bb {
 class DFS : public Algorithm {
 public:
 	using DistanceMatrix = Algorithm::DistanceMatrix;
+	using VertexType = Algorithm::VertexType;
 
 	/**
 	 * @brief This struct represents a solution node in the tree of solutions
 	 * 
 	 */
 	struct Node {
-		uint32_t vertex;
+		VertexType vertex;
 		uint32_t level;
 		uint32_t bound;
 	};
@@ -94,7 +95,7 @@ protected:
 	 * @param vertex - the vertex to check
 	 * @return uint32_t - the lower bound of the vertex
 	 */
-	uint32_t CalculateLowerBound(const Solution& solution, uint32_t vertex) const noexcept;
+	uint32_t CalculateLowerBound(const Solution& solution, VertexType vertex) const noexcept;
 
 	/**
 	 * @brief Get the smallest cost of getting to any neighbor of the given vertex
@@ -103,7 +104,7 @@ protected:
 	 * @param visited - the list of neighbors not to check
 	 * @return uint32_t - the smallest cost
 	 */
-	uint32_t GetSmallestCost(uint32_t vertex, const std::vector<bool>& visited) const noexcept;
+	uint32_t GetSmallestCost(VertexType vertex, const std::vector<bool>& visited) const noexcept;
 
 	/**
 	 * @brief "Visit" the given vertex
@@ -111,7 +112,7 @@ protected:
 	 * @param solution - the solution to update
 	 * @param vertex - the vertex to "visit"
 	 */
-	void VisitVertex(Solution& solution, uint32_t vertex);
+	void VisitVertex(Solution& solution, VertexType vertex);
 
 private:
 	std::stack<Node, std::vector<Node>> stack_;

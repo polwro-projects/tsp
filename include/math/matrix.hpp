@@ -33,6 +33,7 @@ namespace math {
 template <class T, template <class, class> class Container>
 class Matrix {
 public:
+	using Type = T;
 	using RowType = Container<T, std::allocator<T>>;
 
 public:

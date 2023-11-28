@@ -48,8 +48,8 @@ void BF::Solve() {
 		solution_ = {position_list, distance};
 	} while(std::next_permutation(position_list.begin(), position_list.end()));
 
-	solution_.cost += distances_(solution_.path.back(), 0);
-	solution_.path.push_back(0);
+	solution_.cost += distances_(solution_.path.back(), solution_.path.front());
+	solution_.path.push_back(solution_.path.front());
 }
 
 BF::Solution::Path BF::GeneratePath(uint32_t size) {

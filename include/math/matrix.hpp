@@ -45,7 +45,7 @@ public:
 	 * @return T& - the value that the cell contains
 	 */
 	T& operator()(uint32_t row, uint32_t column) {
-		return const_cast<T&>(const_cast<const Matrix*>(this)->operator()(column, row));
+		return const_cast<T&>(const_cast<const Matrix*>(this)->operator()(row, column));
 	}
 
 	/**

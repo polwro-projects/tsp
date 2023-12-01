@@ -32,9 +32,17 @@ DFS::DFS(DistanceMatrix distances)
 	}
 }
 
-void DFS::Solve() {
+bool DFS::Solve() {
+	// Update the flag that indicates the app is running
+	is_stopped_ = false;
+
 	Solution partial_solution{{0}, 0};
 	while(!stack_.empty()) {
+		// Check if the flag to stop the app was risen
+		if(is_stopped_) {
+			return false;
+		}
+
 		const auto [vertex, level, bound] = stack_.top();
 		stack_.pop();
 
@@ -45,10 +53,10 @@ void DFS::Solve() {
 
 		// Undo some steps to explore the tree further (DFS)
 		const auto steps = partial_solution.path.size() - level;
-		if (steps != 0) {
+		if(steps != 0) {
 			Backtrack(partial_solution, steps);
 		}
-		
+
 		// Visit the vertex and add it to the current path
 		VisitVertex(partial_solution, vertex);
 
@@ -59,7 +67,7 @@ void DFS::Solve() {
 			if(is_visited_.at(child)) {
 				continue;
 			}
-			
+
 			const auto child_bound = CalculateLowerBound(partial_solution, child);
 			stack_.push({child, level + 1, child_bound});
 		}
@@ -69,6 +77,9 @@ void DFS::Solve() {
 			AcceptSolution(partial_solution);
 		}
 	}
+
+	is_stopped_ = true;
+	return true;
 }
 
 void DFS::Clear() {
@@ -126,9 +137,9 @@ uint32_t DFS::CalculateLowerBound(const Solution& solution, VertexType vertex) c
 		if(is_visited_.at(index) || index == vertex) {
 			continue;
 		}
-		
+
 		// Cut the computations if the lower bound is already too big
-		if (bound >= solution_.cost) {
+		if(bound >= solution_.cost) {
 			bound = std::numeric_limits<uint32_t>::max();
 			break;
 		}
@@ -157,7 +168,7 @@ uint32_t DFS::GetSmallestCost(VertexType vertex, const std::vector<bool>& visite
 	return smallest_cost;
 }
 
-void DFS::VisitVertex(Solution& solution, VertexType vertex)  {
+void DFS::VisitVertex(Solution& solution, VertexType vertex) {
 	// Add the vertex to the given solution
 	solution.cost += distances_(solution.path.back(), vertex);
 	solution.path.push_back(vertex);

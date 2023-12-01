@@ -64,7 +64,7 @@ public:
 	 * @brief Destroy the Algorithm object
 	 * 
 	 */
-	virtual ~Algorithm() {}
+	virtual ~Algorithm() { }
 
 public:
 	/**
@@ -72,7 +72,13 @@ public:
 	 * 
 	 * @return Solution - the solution to the problem
 	 */
-	virtual void Solve() = 0;
+	virtual bool Solve() = 0;
+
+	/**
+	 * @brief Stop the algorithm's execution
+	 * 
+	 */
+	void Stop() noexcept;
 
 	/**
 	 * @brief Get the solution, calculated in the previous step
@@ -90,5 +96,6 @@ public:
 protected:
 	DistanceMatrix distances_;
 	Solution solution_;
+	bool is_stopped_{true};
 };
 } // namespace tsp::algorithm

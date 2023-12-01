@@ -20,6 +20,7 @@
 #include "app/preconfigured_application.hpp"
 
 #include <chrono>
+#include <thread>
 
 #include "io/reader.hpp"
 #include "math/matrix.hpp"
@@ -48,6 +49,9 @@ PreconfiguredApplication::PreconfiguredApplication(const std::string& config_fil
 		throw std::runtime_error("Output file was not specified");
 	}
 	output_file_.open(iterator->properties.at("filename"));
+
+	// TODO : handle cases when there is no such parameter or it can't be converted to an integer
+	timeout_ = std::chrono::seconds(std::stoi(iterator->properties.at("timeout")));
 }
 
 PreconfiguredApplication::~PreconfiguredApplication() {
@@ -99,9 +103,28 @@ void PreconfiguredApplication::Start() {
 }
 
 void PreconfiguredApplication::RunTest(tsp::algorithm::Algorithm* algorithm) {
+	// FIXME : decompose this function
+
+	// Create a watcher thread that will
+	std::mutex mutex;
+	std::condition_variable cv;
+	std::thread watcher{[this, &algorithm, &cv, &mutex]() {
+		// If the timeout is not set don't do anything
+		if(timeout_ == std::chrono::seconds::zero()) {
+			return;
+		}
+
+		std::unique_lock<std::mutex> lock(mutex);
+		cv.wait_for(lock, timeout_);
+		algorithm->Stop();
+	}};
+
+	// Have a small delay to make the watcher thread wait on the conditional variable
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
 	// Calculate the result and get the time of function's execution
 	const auto start_point = std::chrono::system_clock::now();
-	algorithm->Solve();
+	const auto is_complete = algorithm->Solve();
 	const auto end_point = std::chrono::system_clock::now();
 
 	// Store the duration of the operation
@@ -114,7 +137,11 @@ void PreconfiguredApplication::RunTest(tsp::algorithm::Algorithm* algorithm) {
 	for(const auto position : solution.path) {
 		output_file_ << position << " ";
 	}
-	output_file_ << ", " << solution.cost << std::endl;
+	output_file_ << ", " << solution.cost << ", " << is_complete << std::endl;
+
+	// Wait for the thread to finish
+	cv.notify_one();
+	watcher.join();
 }
 
 std::unique_ptr<tsp::algorithm::Algorithm>

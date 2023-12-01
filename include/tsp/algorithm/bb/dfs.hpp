@@ -53,7 +53,7 @@ public:
 	 * @brief Solve the problem
 	 * 
 	 */
-	void Solve() override;
+	bool Solve() override;
 
 	/**
 	 * @brief Clear the internal state of the algorithm

@@ -20,7 +20,9 @@
 #include "app/menu_application.hpp"
 
 #include <chrono>
+#include <condition_variable>
 #include <random>
+#include <thread>
 
 #include "math/matrix.hpp"
 #include "tsp/algorithm/bb/dfs.hpp"
@@ -81,6 +83,14 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	auto print_entry = std::make_shared<menu::CallableEntry>(
 		"Print current matrix", [this]() { std::cout << distance_matrix_ << std::endl; });
 
+	auto timeout_entry = std::make_shared<menu::CallableEntry>("Set a timeout", [this]() {
+		uint32_t seconds;
+		std::cout << "Please, enter the timeout value in seconds for the algorithms: ";
+		std::cin >> seconds;
+
+		timeout_ = std::chrono::seconds(seconds);
+	});
+
 	auto bf_entry =
 		std::make_shared<menu::CallableEntry>("Calculate the TSP using BF (Brute Force)", [this]() {
 			tsp::algorithm::BF bf{distance_matrix_};
@@ -98,6 +108,7 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	root_entry->AddChild(read_entry);
 	root_entry->AddChild(generate_entry);
 	root_entry->AddChild(print_entry);
+	root_entry->AddChild(timeout_entry);
 	root_entry->AddChild(bf_entry);
 	root_entry->AddChild(bnb_dfs_entry);
 	root_entry->Enter();
@@ -130,9 +141,28 @@ std::string MenuApplication::GetInputFile() {
 }
 
 void MenuApplication::RunTest(tsp::algorithm::Algorithm& algorithm) const {
+	// FIXME : decompose this function
+
+	// Create a watcher thread that will
+	std::mutex mutex;
+	std::condition_variable cv;
+	std::thread watcher{[this, &algorithm, &cv, &mutex]() {
+		// If the timeout is not set don't do anything
+		if(timeout_ == std::chrono::seconds::zero()) {
+			return;
+		}
+
+		std::unique_lock<std::mutex> lock(mutex);
+		cv.wait_for(lock, timeout_);
+		algorithm.Stop();
+	}};
+
+	// Have a small delay to make the watcher thread wait on the conditional variable
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
 	// Calculate the result and get the time of function's execution
 	const auto start_point = std::chrono::system_clock::now();
-	algorithm.Solve();
+	const auto is_complete = algorithm.Solve();
 	const auto end_point = std::chrono::system_clock::now();
 
 	// Store the duration of the operation
@@ -142,7 +172,12 @@ void MenuApplication::RunTest(tsp::algorithm::Algorithm& algorithm) const {
 
 	// Print the solution to the output file
 	const auto solution = algorithm.GetSolution();
-	std::cout << solution.path << ", " << solution.cost << std::endl;
+	std::cout << solution.path << ", " << solution.cost << " has finished : " << is_complete
+			  << std::endl;
+
+	// Wait for the thread to finish
+	cv.notify_one();
+	watcher.join();
 }
 
 MenuApplication::DistanceMatrix MenuApplication::GenerateRandomMatrix(uint32_t size) {

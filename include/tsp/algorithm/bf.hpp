@@ -42,7 +42,7 @@ public:
 	 * @brief Solve the problem
 	 * 
 	 */
-	void Solve() override;
+	bool Solve() override;
 
 private:
 	/**

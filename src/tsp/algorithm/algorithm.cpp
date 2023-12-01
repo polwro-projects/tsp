@@ -31,6 +31,10 @@ Algorithm::Solution Algorithm::GetSolution() const noexcept {
 	return solution_;
 }
 
+void Algorithm::Stop() noexcept {
+	is_stopped_ = true;
+}
+
 void Algorithm::Clear() {
 	// Clear the previous solution
 	solution_.Clear();

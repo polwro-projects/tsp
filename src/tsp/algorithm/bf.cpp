@@ -31,13 +31,21 @@ BF::BF(DistanceMatrix distances)
 	}
 }
 
-void BF::Solve() {
+bool BF::Solve() {
+	// Update the flag that indicates the app is running
+	is_stopped_ = false;
+
 	const auto path_size = distances_.Rows();
 	uint32_t best_distance{std::numeric_limits<uint32_t>::max()}; // Needed for the first run;
 
 	// Generate the list of positions and iterate over every permutation of it
 	auto position_list = GeneratePath(path_size);
 	do {
+		// Check if the flag to stop the app was risen
+		if(is_stopped_) {
+			return false;
+		}
+
 		// Get to the next permutation if it's length is bigger than the best one so far
 		const auto distance = CalculateCost(position_list);
 		if(distance >= solution_.cost) {
@@ -50,6 +58,9 @@ void BF::Solve() {
 
 	solution_.cost += distances_(solution_.path.back(), solution_.path.front());
 	solution_.path.push_back(solution_.path.front());
+
+	is_stopped_ = true;
+	return true;
 }
 
 BF::Solution::Path BF::GeneratePath(uint32_t size) {

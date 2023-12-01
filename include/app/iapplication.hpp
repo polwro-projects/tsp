@@ -18,6 +18,8 @@
  */
 #pragma once
 
+#include <chrono>
+
 #include "io/file/tsp/parser.hpp"
 
 namespace app {
@@ -42,5 +44,8 @@ public:
 	 * 
 	 */
 	virtual void Start() = 0;
+
+protected:
+	std::chrono::seconds timeout_{};
 };
 } // namespace app

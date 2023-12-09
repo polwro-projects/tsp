@@ -17,13 +17,13 @@
  * under the License.
  */
 
-#include "tsp/algorithm/bf.hpp"
+#include "tsp/algorithm/accurate/bf.hpp"
 
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
 
-namespace tsp::algorithm {
+namespace tsp::algorithm::accurate {
 BF::BF(DistanceMatrix distances)
 	: Algorithm{distances} {
 	if(distances_.Rows() != distances_.Columns()) {

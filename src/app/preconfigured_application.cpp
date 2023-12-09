@@ -24,8 +24,8 @@
 
 #include "io/reader.hpp"
 #include "math/matrix.hpp"
-#include "tsp/algorithm/bb/dfs.hpp"
-#include "tsp/algorithm/bf.hpp"
+#include "tsp/algorithm/accurate/bb/dfs.hpp"
+#include "tsp/algorithm/accurate/bf.hpp"
 
 namespace app {
 PreconfiguredApplication::PreconfiguredApplication(const std::string& config_file) {
@@ -147,9 +147,9 @@ void PreconfiguredApplication::RunTest(tsp::algorithm::Algorithm* algorithm) {
 std::unique_ptr<tsp::algorithm::Algorithm>
 PreconfiguredApplication::CreateAlgorithm(const std::string& value, const DistanceMatrix& matrix) {
 	if(value == "bf") {
-		return std::make_unique<tsp::algorithm::BF>(matrix);
+		return std::make_unique<tsp::algorithm::accurate::BF>(matrix);
 	} else if(value == "bnb_dfs") {
-		return std::make_unique<tsp::algorithm::bb::DFS>(matrix);
+		return std::make_unique<tsp::algorithm::accurate::bb::DFS>(matrix);
 	}
 
 	return {};

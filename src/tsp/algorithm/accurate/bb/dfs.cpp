@@ -17,12 +17,12 @@
  * under the License.
  */
 
-#include "tsp/algorithm/bb/dfs.hpp"
+#include "tsp/algorithm/accurate/bb/dfs.hpp"
 
 #include <algorithm>
 #include <stdexcept>
 
-namespace tsp::algorithm::bb {
+namespace tsp::algorithm::accurate::bb {
 DFS::DFS(DistanceMatrix distances)
 	: Algorithm{distances}
 	, is_visited_{std::vector<bool>(distances_.Rows())} {
@@ -176,4 +176,4 @@ void DFS::VisitVertex(Solution& solution, VertexType vertex) {
 	// "Visit" the vertex
 	is_visited_.at(vertex) = true;
 }
-} // namespace tsp::algorithm::bb
+} // namespace tsp::algorithm::accurate::bb

@@ -25,8 +25,8 @@
 #include <thread>
 
 #include "math/matrix.hpp"
-#include "tsp/algorithm/bb/dfs.hpp"
-#include "tsp/algorithm/bf.hpp"
+#include "tsp/algorithm/accurate/bb/dfs.hpp"
+#include "tsp/algorithm/accurate/bf.hpp"
 #include "ui/menu/callable_entry.hpp"
 #include "ui/menu/submenu.hpp"
 
@@ -93,13 +93,13 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 
 	auto bf_entry =
 		std::make_shared<menu::CallableEntry>("Calculate the TSP using BF (Brute Force)", [this]() {
-			tsp::algorithm::BF bf{distance_matrix_};
+			tsp::algorithm::accurate::BF bf{distance_matrix_};
 			RunTest(bf);
 		});
 
 	auto bnb_dfs_entry = std::make_shared<menu::CallableEntry>(
 		"Calculate the TSP using BB (Branch and Bound) algorithm with DFS", [this]() {
-			tsp::algorithm::bb::DFS dfs{distance_matrix_};
+			tsp::algorithm::accurate::bb::DFS dfs{distance_matrix_};
 			RunTest(dfs);
 		});
 

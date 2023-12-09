@@ -24,7 +24,7 @@
 #include "math/matrix.hpp"
 #include "tsp/algorithm/algorithm.hpp"
 
-namespace tsp::algorithm::bb {
+namespace tsp::algorithm::accurate::bb {
 class DFS : public Algorithm {
 public:
 	using DistanceMatrix = Algorithm::DistanceMatrix;
@@ -118,4 +118,4 @@ private:
 	std::stack<Node, std::vector<Node>> stack_;
 	std::vector<bool> is_visited_;
 };
-} // namespace tsp::algorithm::bb
+} // namespace tsp::algorithm::accurate::bb

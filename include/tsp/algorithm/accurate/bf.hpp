@@ -24,7 +24,7 @@
 #include "math/matrix.hpp"
 #include "tsp/algorithm/algorithm.hpp"
 
-namespace tsp::algorithm {
+namespace tsp::algorithm::accurate {
 class BF : public Algorithm {
 public:
 	using DistanceMatrix = Algorithm::DistanceMatrix;

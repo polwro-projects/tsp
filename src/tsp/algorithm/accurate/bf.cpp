@@ -70,13 +70,4 @@ BF::Solution::Path BF::GeneratePath(uint32_t size) {
 	}
 	return result;
 }
-
-uint32_t BF::CalculateCost(const Solution::Path& value) const {
-	uint32_t result{};
-	for(uint32_t index{}; index < value.size() - 1; ++index) {
-		const auto& distance = distances_(value.at(index), value.at(index + 1));
-		result += distance;
-	}
-	return result;
-}
 } // namespace tsp::algorithm

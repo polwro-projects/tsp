@@ -94,6 +94,15 @@ public:
 	virtual void Clear();
 
 protected:
+	/**
+	 * @brief Get the length of the given path
+	 * 
+	 * @param value - the path to calculate the length for
+	 * @return uint32_t - the length of the path
+	 */
+	uint32_t CalculateCost(const Solution::Path& value) const;
+
+protected:
 	DistanceMatrix distances_;
 	Solution solution_;
 	bool is_stopped_{true};

@@ -11,6 +11,7 @@ set(SOURCES
 	"src/tsp/algorithm/accurate/bb/dfs.cpp"
 	"src/tsp/algorithm/accurate/bf.cpp"
 	"src/tsp/algorithm/algorithm.cpp"
+	"src/tsp/neighborhood/random.cpp"
 	"src/ui/menu/callable_entry.cpp"
 	"src/ui/menu/entry.cpp"
 	"src/ui/menu/submenu.cpp"

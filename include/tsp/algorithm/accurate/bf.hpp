@@ -52,13 +52,5 @@ private:
 	 * @return Solution::Path - the list of positions
 	 */
 	static Solution::Path GeneratePath(uint32_t size);
-
-	/**
-	 * @brief Get the length of the given path
-	 * 
-	 * @param value - the path to calculate the length for
-	 * @return uint32_t - the length of the path
-	 */
-	uint32_t CalculateCost(const Solution::Path& value) const;
 };
 } // namespace tsp::algorithm

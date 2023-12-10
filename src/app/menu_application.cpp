@@ -27,6 +27,8 @@
 #include "math/matrix.hpp"
 #include "tsp/algorithm/accurate/bb/dfs.hpp"
 #include "tsp/algorithm/accurate/bf.hpp"
+#include "tsp/algorithm/inaccurate/sa/linear.hpp"
+#include "tsp/neighborhood/random.hpp"
 #include "ui/menu/callable_entry.hpp"
 #include "ui/menu/submenu.hpp"
 
@@ -103,6 +105,15 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 			RunTest(dfs);
 		});
 
+	auto sa_linear_entry = std::make_shared<menu::CallableEntry>(
+		"Calculate the TSP using SA (Simulated Annealing) algorithm with linear cooling scheme",
+		[this]() {
+			// FIXME : magic numbers
+			tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random> sa{
+				distance_matrix_, 100, 100, 0.9};
+			RunTest(sa);
+		});
+
 	auto menu = std::make_unique<Menu>();
 	auto root_entry = std::make_shared<menu::Submenu>("Main menu", menu.get());
 	root_entry->AddChild(read_entry);
@@ -111,6 +122,7 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	root_entry->AddChild(timeout_entry);
 	root_entry->AddChild(bf_entry);
 	root_entry->AddChild(bnb_dfs_entry);
+	root_entry->AddChild(sa_linear_entry);
 	root_entry->Enter();
 
 	return menu;

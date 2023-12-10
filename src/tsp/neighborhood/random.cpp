@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,37 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#pragma once
 
-#include <chrono>
+#include "tsp/neighborhood/random.hpp"
 
-#include "io/file/tsp/parser.hpp"
-#include "tsp/algorithm/inaccurate/sa/algorithm.hpp"
+namespace tsp::neighborhood {
 
-namespace app {
-/**
- * @brief This class represents the application class interface
- * 
- */
-class IApplication {
-protected:
-	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
+Random::Random(uint32_t size)
+	: neighbor_distribution_{1, size - 2} {
+	std::random_device device;
+	neighbor_generator_ = std::mt19937{device()};
+}
+Random::Path Random::GetNeighbor(const Path& path) noexcept {
+	auto neighbor = path;
+	const auto first_index = neighbor_distribution_(neighbor_generator_);
+	const auto second_index = neighbor_distribution_(neighbor_generator_);
+	std::iter_swap(neighbor.begin() + first_index, neighbor.begin() + second_index);
 
-public:
-	/**
-	 * @brief Destroy the IApplication object
-	 * 
-	 */
-	virtual ~IApplication() = default;
-
-public:
-	/**
-	 * @brief Start the application execution
-	 * 
-	 */
-	virtual void Start() = 0;
-
-protected:
-	std::chrono::seconds timeout_{};
-};
-} // namespace app
+	return neighbor;
+}
+} // namespace tsp::neighborhood

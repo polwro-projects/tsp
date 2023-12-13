@@ -26,6 +26,7 @@
 #include "math/matrix.hpp"
 #include "tsp/algorithm/accurate/bb/dfs.hpp"
 #include "tsp/algorithm/accurate/bf.hpp"
+#include "tsp/neighborhood/random.hpp"
 
 namespace app {
 PreconfiguredApplication::PreconfiguredApplication(const std::string& config_file) {
@@ -68,6 +69,15 @@ void PreconfiguredApplication::Start() {
 		// Save the name of the section to the output
 		output_file_ << section.name << std::endl;
 
+		// Read the parameters if they exist
+		try {
+			temperature_ = std::stof(section.properties.at("temperature"));
+			epoch_size_ = std::stoi(section.properties.at("epoch_size"));
+			linear_coefficient_ = std::stof(section.properties.at("linear_coefficient"));
+		} catch(const std::exception& e) {
+			// Do nothing, maybe the algorithm is not correct or something
+		}
+
 		// Read the TSP file
 		io::Reader reader(section.properties.at("filename"));
 		if(!reader.Process()) {
@@ -99,6 +109,11 @@ void PreconfiguredApplication::Start() {
 
 		// Visually separate sections
 		output_file_ << std::endl;
+
+		// Clear the SA parameters
+		temperature_ = 0.0f;
+		epoch_size_ = 0;
+		linear_coefficient_ = 0.0f;
 	}
 }
 
@@ -145,11 +160,15 @@ void PreconfiguredApplication::RunTest(tsp::algorithm::Algorithm* algorithm) {
 }
 
 std::unique_ptr<tsp::algorithm::Algorithm>
-PreconfiguredApplication::CreateAlgorithm(const std::string& value, const DistanceMatrix& matrix) {
+PreconfiguredApplication::CreateAlgorithm(const std::string& value,
+										  const DistanceMatrix& matrix) const {
 	if(value == "bf") {
 		return std::make_unique<tsp::algorithm::accurate::BF>(matrix);
 	} else if(value == "bnb_dfs") {
 		return std::make_unique<tsp::algorithm::accurate::bb::DFS>(matrix);
+	} else if(value == "linear_sa") {
+		return std::make_unique<tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random>>(
+			matrix, temperature_, epoch_size_, linear_coefficient_);
 	}
 
 	return {};

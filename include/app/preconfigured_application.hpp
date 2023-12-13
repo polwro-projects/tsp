@@ -70,8 +70,8 @@ protected:
 	 * @param matrix - the distance matrix 
 	 * @return std::unique_ptr<tsp::algorithm::Algorithm> 
 	 */
-	static std::unique_ptr<tsp::algorithm::Algorithm> CreateAlgorithm(const std::string& value,
-																	  const DistanceMatrix& matrix);
+	std::unique_ptr<tsp::algorithm::Algorithm> CreateAlgorithm(const std::string& value,
+															   const DistanceMatrix& matrix) const;
 
 protected:
 	io::file::ini::Parser::Parameters parameters_;

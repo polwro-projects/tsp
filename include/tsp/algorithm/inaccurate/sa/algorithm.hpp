@@ -24,13 +24,13 @@
 #include "tsp/algorithm/algorithm.hpp"
 
 namespace tsp::algorithm::inaccurate::sa {
+
+using TemperatureType = float;
+using EpochType = uint32_t;
+
 template <class NeighborhoodAlgorithm>
 class Algorithm : public tsp::algorithm::Algorithm, NeighborhoodAlgorithm {
 	static_assert(std::is_class_v<NeighborhoodAlgorithm>);
-
-public:
-	using TemperatureType = float;
-	using EpochType = uint32_t;
 
 protected:
 	/**
@@ -161,8 +161,8 @@ protected:
 	TemperatureType temperature_;
 	Solution current_solution_;
 
-	std::mt19937 solution_acceptor_generator_;
-	std::uniform_int_distribution<std::mt19937::result_type> solution_acceptor_distribution_{
-		0, kAcceptorFactor};
+	mutable std::mt19937 solution_acceptor_generator_;
+	mutable std::uniform_int_distribution<std::mt19937::result_type>
+		solution_acceptor_distribution_{0, kAcceptorFactor};
 };
 } // namespace tsp::algorithm::inaccurate::sa

@@ -22,6 +22,7 @@
 
 #include "io/file/tsp/parser.hpp"
 #include "tsp/algorithm/inaccurate/sa/algorithm.hpp"
+#include "tsp/algorithm/inaccurate/sa/linear.hpp"
 
 namespace app {
 /**
@@ -48,5 +49,8 @@ public:
 
 protected:
 	std::chrono::seconds timeout_{};
+	tsp::algorithm::inaccurate::sa::TemperatureType temperature_;
+	tsp::algorithm::inaccurate::sa::EpochType epoch_size_;
+	tsp::algorithm::inaccurate::sa::LinearCoefficientType linear_coefficient_;
 };
 } // namespace app

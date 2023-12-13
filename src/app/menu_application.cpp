@@ -93,6 +93,24 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 		timeout_ = std::chrono::seconds(seconds);
 	});
 
+	auto temperature_entry =
+		std::make_shared<menu::CallableEntry>("Set the starting temperature (SA)", [this]() {
+			std::cout << "Please, enter the starting temperature value: ";
+			std::cin >> temperature_;
+		});
+
+	auto epoch_size_entry =
+		std::make_shared<menu::CallableEntry>("Set the epoch size (SA)", [this]() {
+			std::cout << "Please, enter the epoch size value: ";
+			std::cin >> epoch_size_;
+		});
+
+	auto linear_coefficient_entry = std::make_shared<menu::CallableEntry>(
+		"Set the linear coefficient of cooling (SA)", [this]() {
+			std::cout << "Please, enter the linear coefficient value: ";
+			std::cin >> linear_coefficient_;
+		});
+
 	auto bf_entry =
 		std::make_shared<menu::CallableEntry>("Calculate the TSP using BF (Brute Force)", [this]() {
 			tsp::algorithm::accurate::BF bf{distance_matrix_};
@@ -108,9 +126,8 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	auto sa_linear_entry = std::make_shared<menu::CallableEntry>(
 		"Calculate the TSP using SA (Simulated Annealing) algorithm with linear cooling scheme",
 		[this]() {
-			// FIXME : magic numbers
 			tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random> sa{
-				distance_matrix_, 100, 100, 0.9};
+				distance_matrix_, temperature_, epoch_size_, linear_coefficient_};
 			RunTest(sa);
 		});
 
@@ -120,6 +137,9 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	root_entry->AddChild(generate_entry);
 	root_entry->AddChild(print_entry);
 	root_entry->AddChild(timeout_entry);
+	root_entry->AddChild(temperature_entry);
+	root_entry->AddChild(epoch_size_entry);
+	root_entry->AddChild(linear_coefficient_entry);
 	root_entry->AddChild(bf_entry);
 	root_entry->AddChild(bnb_dfs_entry);
 	root_entry->AddChild(sa_linear_entry);

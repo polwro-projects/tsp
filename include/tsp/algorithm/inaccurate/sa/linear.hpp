@@ -22,13 +22,13 @@
 #include "tsp/algorithm/inaccurate/sa/algorithm.hpp"
 
 namespace tsp::algorithm::inaccurate::sa {
+
+using LinearCoefficientType = float;
+
 template <class NeighborhoodAlgorithm>
 class Linear : public Algorithm<NeighborhoodAlgorithm> {
 public:
 	using DistanceMatrix = typename Algorithm<NeighborhoodAlgorithm>::DistanceMatrix;
-	using EpochType = typename Algorithm<NeighborhoodAlgorithm>::EpochType;
-	using LinearCoefficientType = float;
-	using TemperatureType = typename Algorithm<NeighborhoodAlgorithm>::TemperatureType;
 
 public:
 	/**

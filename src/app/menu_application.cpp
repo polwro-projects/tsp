@@ -54,6 +54,90 @@ void MenuApplication::Start() {
 std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	using namespace ui;
 
+	auto timeout_entry = std::make_shared<menu::CallableEntry>("Set a timeout", [this]() {
+		uint32_t seconds;
+		std::cout << "Please, enter the timeout value in seconds for the algorithms: ";
+		std::cin >> seconds;
+
+		timeout_ = std::chrono::seconds(seconds);
+	});
+
+	auto bf_entry =
+		std::make_shared<menu::CallableEntry>("Calculate the TSP using BF (Brute Force)", [this]() {
+			auto algorithm = std::make_unique<tsp::algorithm::accurate::BF>(distance_matrix_);
+			const auto results = RunTest(algorithm.get());
+			OutputResults(results);
+		});
+
+	auto bnb_dfs_entry = std::make_shared<menu::CallableEntry>(
+		"Calculate the TSP using BB (Branch and Bound) algorithm with DFS", [this]() {
+			auto algorithm = std::make_unique<tsp::algorithm::accurate::bb::DFS>(distance_matrix_);
+			const auto results = RunTest(algorithm.get());
+			OutputResults(results);
+		});
+
+	// Create the main menu
+	auto menu = std::make_unique<Menu>();
+	auto root_entry = std::make_shared<menu::Submenu>("Main menu", menu.get());
+
+	auto matrix_submenu = CreateMatrixSubmenu(menu.get());
+	matrix_submenu->SetParent(root_entry);
+
+	auto sa_submenu = CreateSASubmenu(menu.get());
+	sa_submenu->SetParent(root_entry);
+
+	// Set the main menu
+	root_entry->AddChild(std::move(matrix_submenu));
+	root_entry->AddChild(timeout_entry);
+	root_entry->AddChild(bf_entry);
+	root_entry->AddChild(bnb_dfs_entry);
+	root_entry->AddChild(std::move(sa_submenu));
+	root_entry->Enter();
+
+	return menu;
+}
+
+std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateSASubmenu(ui::Menu* menu) {
+	using namespace ui;
+
+	auto temperature_entry =
+		std::make_shared<menu::CallableEntry>("Set the starting temperature", [this]() {
+			std::cout << "Please, enter the starting temperature value: ";
+			std::cin >> temperature_;
+		});
+
+	auto epoch_size_entry = std::make_shared<menu::CallableEntry>("Set the epoch size", [this]() {
+		std::cout << "Please, enter the epoch size value: ";
+		std::cin >> epoch_size_;
+	});
+
+	auto linear_coefficient_entry =
+		std::make_shared<menu::CallableEntry>("Set the linear coefficient of cooling", [this]() {
+			std::cout << "Please, enter the linear coefficient value: ";
+			std::cin >> linear_coefficient_;
+		});
+
+	auto sa_linear_entry = std::make_shared<menu::CallableEntry>(
+		"Calculate the TSP with the linear cooling scheme", [this]() {
+			auto algorithm =
+				std::make_unique<tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random>>(
+					distance_matrix_, temperature_, epoch_size_, linear_coefficient_);
+			const auto results = RunTest(algorithm.get());
+			OutputResults(results);
+		});
+
+	auto submenu = std::make_unique<menu::Submenu>("Simulated Annealing", menu);
+	submenu->AddChild(temperature_entry);
+	submenu->AddChild(epoch_size_entry);
+	submenu->AddChild(linear_coefficient_entry);
+	submenu->AddChild(sa_linear_entry);
+
+	return std::move(submenu);
+}
+
+std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateMatrixSubmenu(ui::Menu* menu) {
+	using namespace ui;
+
 	auto read_entry = std::make_shared<menu::CallableEntry>("Read matrix from the file", [this]() {
 		const auto filename = std::move(GetInputFile());
 		distance_matrix_ = std::move(ReadMatrix(filename));
@@ -77,71 +161,12 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	auto print_entry = std::make_shared<menu::CallableEntry>(
 		"Print current matrix", [this]() { std::cout << distance_matrix_ << std::endl; });
 
-	auto timeout_entry = std::make_shared<menu::CallableEntry>("Set a timeout", [this]() {
-		uint32_t seconds;
-		std::cout << "Please, enter the timeout value in seconds for the algorithms: ";
-		std::cin >> seconds;
+	auto submenu = std::make_unique<menu::Submenu>("Matrix manipulation", menu);
+	submenu->AddChild(read_entry);
+	submenu->AddChild(generate_entry);
+	submenu->AddChild(print_entry);
 
-		timeout_ = std::chrono::seconds(seconds);
-	});
-
-	auto temperature_entry =
-		std::make_shared<menu::CallableEntry>("Set the starting temperature (SA)", [this]() {
-			std::cout << "Please, enter the starting temperature value: ";
-			std::cin >> temperature_;
-		});
-
-	auto epoch_size_entry =
-		std::make_shared<menu::CallableEntry>("Set the epoch size (SA)", [this]() {
-			std::cout << "Please, enter the epoch size value: ";
-			std::cin >> epoch_size_;
-		});
-
-	auto linear_coefficient_entry = std::make_shared<menu::CallableEntry>(
-		"Set the linear coefficient of cooling (SA)", [this]() {
-			std::cout << "Please, enter the linear coefficient value: ";
-			std::cin >> linear_coefficient_;
-		});
-
-	auto bf_entry =
-		std::make_shared<menu::CallableEntry>("Calculate the TSP using BF (Brute Force)", [this]() {
-			auto algorithm = std::make_unique<tsp::algorithm::accurate::BF>(distance_matrix_);
-			const auto results = RunTest(algorithm.get());
-			OutputResults(results);
-		});
-
-	auto bnb_dfs_entry = std::make_shared<menu::CallableEntry>(
-		"Calculate the TSP using BB (Branch and Bound) algorithm with DFS", [this]() {
-			auto algorithm = std::make_unique<tsp::algorithm::accurate::bb::DFS>(distance_matrix_);
-			const auto results = RunTest(algorithm.get());
-			OutputResults(results);
-		});
-
-	auto sa_linear_entry = std::make_shared<menu::CallableEntry>(
-		"Calculate the TSP using SA (Simulated Annealing) algorithm with linear cooling scheme",
-		[this]() {
-			auto algorithm =
-				std::make_unique<tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random>>(
-					distance_matrix_, temperature_, epoch_size_, linear_coefficient_);
-			const auto results = RunTest(algorithm.get());
-			OutputResults(results);
-		});
-
-	auto menu = std::make_unique<Menu>();
-	auto root_entry = std::make_shared<menu::Submenu>("Main menu", menu.get());
-	root_entry->AddChild(read_entry);
-	root_entry->AddChild(generate_entry);
-	root_entry->AddChild(print_entry);
-	root_entry->AddChild(timeout_entry);
-	root_entry->AddChild(temperature_entry);
-	root_entry->AddChild(epoch_size_entry);
-	root_entry->AddChild(linear_coefficient_entry);
-	root_entry->AddChild(bf_entry);
-	root_entry->AddChild(bnb_dfs_entry);
-	root_entry->AddChild(sa_linear_entry);
-	root_entry->Enter();
-
-	return menu;
+	return std::move(submenu);
 }
 
 MenuApplication::DistanceMatrix MenuApplication::ReadMatrix(const std::string& filename) {

@@ -77,6 +77,22 @@ protected:
 	std::unique_ptr<ui::Menu> CreateMenu();
 
 	/**
+	 * @brief Create the SA algorithm submenu
+	 * 
+	 * @param menu - the menu object to be used in the submenu instance
+	 * @return std::unique_ptr<ui::Submenu> the submenu with the SA entries
+	 */
+	std::unique_ptr<ui::menu::Submenu> CreateSASubmenu(ui::Menu* menu);
+
+	/**
+	 * @brief Create the matrix manipulation submenu
+	 * 
+	 * @param menu - the menu object to be used in the submenu instance
+	 * @return std::unique_ptr<ui::Submenu> the submenu with the matrix modification entries
+	 */
+	std::unique_ptr<ui::menu::Submenu> CreateMatrixSubmenu(ui::Menu* menu);
+
+	/**
 	 * @brief Output the test results 
 	 * 
 	 * @param value - the test results

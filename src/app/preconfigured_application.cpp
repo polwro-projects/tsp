@@ -77,19 +77,6 @@ void PreconfiguredApplication::Start() {
 			// Do nothing, maybe the algorithm is not correct or something
 		}
 
-		// Read the TSP file
-		const auto filename = section.properties.at("filename");
-		io::Reader reader(filename);
-		if(!reader.Process()) {
-			throw std::runtime_error("Reading the TSP file failed");
-		}
-
-		// Read the matrix from the file
-		auto parser = CreateParser(filename, reader.Get());
-		if(!parser || !parser->Process()) {
-			throw std::runtime_error("Parsing the TSP file failed");
-		}
-
 		// Get the algorithm type
 		std::string algorithm_type;
 		try {
@@ -99,13 +86,15 @@ void PreconfiguredApplication::Start() {
 		}
 
 		// Create the TSP solver instance from the given matrix and find the solution
-		auto tsp = CreateAlgorithm(algorithm_type, parser->Get());
+		const auto filename = section.properties.at("filename");
+		const auto distances = ReadMatrix(filename);
+		auto algorithm = CreateAlgorithm(algorithm_type, std::move(distances));
 		for(uint32_t index{1}; index <= std::stoi(section.properties.at("count")); ++index) {
-			const auto result = RunTest(tsp.get());
+			const auto result = RunTest(algorithm.get());
 			OutputResults(result);
 
 			// Clear the internal solution
-			tsp->Clear();
+			algorithm->Clear();
 		}
 
 		// Visually separate sections

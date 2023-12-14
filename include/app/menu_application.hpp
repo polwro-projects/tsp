@@ -53,14 +53,6 @@ public:
 	void Start() override;
 
 	/**
-	 * @brief Read the distance matrix from the given file
-	 * 
-	 * @param filename - the name of the file to use
-	 * @return DistanceMatrix - the distance matrix, read from the file
-	 */
-	static DistanceMatrix ReadMatrix(const std::string& filename);
-
-	/**
 	 * @brief Get the input file name
 	 * 
 	 * @return std::string - the name of the input file

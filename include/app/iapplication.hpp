@@ -55,6 +55,14 @@ public:
 
 protected:
 	/**
+	 * @brief Read the distance matrix from the given file
+	 * 
+	 * @param filename - the name of the file to use
+	 * @return DistanceMatrix - the distance matrix, read from the file
+	 */
+	static DistanceMatrix ReadMatrix(const std::string& filename);
+
+	/**
 	 * @brief Create a new parser object for the corresponding type of files
 	 * 
 	 * @param filename - the name of the file from where to get the extension

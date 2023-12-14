@@ -181,22 +181,6 @@ std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateMatrixSubmenu(ui::Menu
 	return std::move(submenu);
 }
 
-MenuApplication::DistanceMatrix MenuApplication::ReadMatrix(const std::string& filename) {
-	// Read the TSP file
-	io::Reader reader(filename);
-	if(!reader.Process()) {
-		throw std::runtime_error("Reading the TSP file failed");
-	}
-
-	// Read the matrix from the file
-	auto parser = CreateParser(filename, reader.Get());
-	if(!parser || !parser->Process()) {
-		throw std::runtime_error("Parsing the TSP file failed");
-	}
-
-	return parser->Get();
-}
-
 std::string MenuApplication::GetInputFile() {
 	std::string filename;
 	std::cout << "Please, enter the name of the file: ";

@@ -27,6 +27,22 @@
 #include "io/file/problem/txt/parser.hpp"
 
 namespace app {
+IApplication::DistanceMatrix IApplication::ReadMatrix(const std::string& filename) {
+	// Read the TSP file
+	io::Reader reader(filename);
+	if(!reader.Process()) {
+		throw std::runtime_error("Reading the TSP file failed");
+	}
+
+	// Read the matrix from the file
+	auto parser = CreateParser(filename, reader.Get());
+	if(!parser || !parser->Process()) {
+		throw std::runtime_error("Parsing the TSP file failed");
+	}
+
+	return parser->Get();
+}
+
 std::unique_ptr<io::file::problem::IProblemParser>
 IApplication::CreateParser(const std::string& filename, const io::Reader::Data& data) {
 	io::file::problem::IProblemParser* pointer{};

@@ -32,6 +32,7 @@ namespace app {
 class IApplication {
 protected:
 	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
+	using TimeoutType = std::chrono::seconds;
 
 	struct TestResult {
 		std::chrono::microseconds duration;
@@ -86,7 +87,7 @@ protected:
 	TestResult RunTest(tsp::algorithm::Algorithm* algorithm) const;
 
 protected:
-	std::chrono::seconds timeout_{};
+	TimeoutType timeout_{};
 	tsp::algorithm::inaccurate::sa::TemperatureType temperature_;
 	tsp::algorithm::inaccurate::sa::EpochType epoch_size_;
 	tsp::algorithm::inaccurate::sa::LinearCoefficientType linear_coefficient_;

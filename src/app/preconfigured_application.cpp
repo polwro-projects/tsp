@@ -30,28 +30,13 @@
 namespace app {
 PreconfiguredApplication::PreconfiguredApplication(const std::string& config_file) {
 	// Read the parameters
-	io::Reader reader(config_file);
-	if(!reader.Process()) {
-		throw std::runtime_error("Reading the INI file failed");
-	}
-
-	io::file::configuration::ini::Parser parser{reader.Get()};
-	if(!parser.Process()) {
-		throw std::runtime_error("Parsing the INI file failed");
-	}
-	parameters_ = parser.Get();
+	parameters_ = GetConfigurationParameters(config_file);
 
 	// Open the output file
-	auto iterator = std::find_if(parameters_.cbegin(), parameters_.cend(), [](const auto& section) {
-		return section.name == "output";
-	});
-	if(iterator == parameters_.cend()) {
-		throw std::runtime_error("Output file was not specified");
-	}
-	output_file_.open(iterator->properties.at("filename"));
+	output_file_.open(GetOutputFile());
 
-	// TODO : handle cases when there is no such parameter or it can't be converted to an integer
-	timeout_ = std::chrono::seconds(std::stoi(iterator->properties.at("timeout")));
+	// Get the timeout
+	timeout_ = GetTimeout();
 }
 
 PreconfiguredApplication::~PreconfiguredApplication() {
@@ -105,6 +90,45 @@ void PreconfiguredApplication::Start() {
 		epoch_size_ = 0;
 		linear_coefficient_ = 0.0f;
 	}
+}
+
+PreconfiguredApplication::ConfigurationParameters
+PreconfiguredApplication::GetConfigurationParameters(const std::string& file) {
+	io::Reader reader(file);
+	if(!reader.Process()) {
+		throw std::runtime_error("Reading the INI file failed");
+	}
+
+	io::file::configuration::ini::Parser parser{reader.Get()};
+	if(!parser.Process()) {
+		throw std::runtime_error("Parsing the INI file failed");
+	}
+
+	return parser.Get();
+}
+
+std::string PreconfiguredApplication::GetOutputFile() const {
+	auto iterator = std::find_if(parameters_.cbegin(), parameters_.cend(), [](const auto& section) {
+		return section.name == "output";
+	});
+	if(iterator == parameters_.cend() ||
+	   iterator->properties.find("filename") == iterator->properties.cend()) {
+		throw std::runtime_error("Output file was not specified");
+	}
+
+	return iterator->properties.at("filename");
+}
+
+PreconfiguredApplication::TimeoutType PreconfiguredApplication::GetTimeout() const {
+	auto iterator = std::find_if(parameters_.cbegin(), parameters_.cend(), [](const auto& section) {
+		return section.name == "output";
+	});
+	if(iterator == parameters_.cend() ||
+	   iterator->properties.find("timeout") == iterator->properties.cend()) {
+		return {};
+	}
+
+	return std::chrono::seconds(std::stoi(iterator->properties.at("timeout")));
 }
 
 void PreconfiguredApplication::OutputResults(const TestResult& value) {

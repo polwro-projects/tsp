@@ -33,6 +33,7 @@ namespace app {
  */
 class PreconfiguredApplication : public IApplication {
 	using DistanceMatrix = IApplication::DistanceMatrix;
+	using ConfigurationParameters = io::file::configuration::ini::Parser::Parameters;
 
 public:
 	/**
@@ -57,6 +58,28 @@ public:
 
 protected:
 	/**
+	 * @brief Get the configuration from the given file
+	 * 
+	 * @param file - the configuration file 
+	 * @return ConfigurationParameters - the parameters
+	 */
+	static ConfigurationParameters GetConfigurationParameters(const std::string& file);
+
+	/**
+	 * @brief Get the output file
+	 * 
+	 * @return std::string - the file to store output
+	 */
+	std::string GetOutputFile() const;
+
+	/**
+	 * @brief Get the specified timeout
+	 * 
+	 * @return TimeoutType the timeout of the algorithm
+	 */
+	TimeoutType GetTimeout() const;
+
+	/**
 	 * @brief Output the test results 
 	 * 
 	 * @param value - the test results
@@ -74,7 +97,7 @@ protected:
 															   const DistanceMatrix& matrix) const;
 
 protected:
-	io::file::configuration::ini::Parser::Parameters parameters_;
+	ConfigurationParameters parameters_;
 	std::ofstream output_file_;
 };
 } // namespace app

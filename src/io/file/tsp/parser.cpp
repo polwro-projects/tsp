@@ -19,6 +19,7 @@
 
 #include "io/file/tsp/parser.hpp"
 
+#include "io/file/tsp/patterns.hpp"
 #include "utils/tokenizer.hpp"
 
 namespace io::file::tsp {
@@ -31,44 +32,68 @@ bool Parser::Process() {
 		return false;
 	}
 
-	// Read the dimensions of the matrix
-	uint32_t dimension;
-	try {
-		dimension = std::stoi(data_.at(0).c_str());
-	} catch(const std::exception& e) {
-		return false;
+	for(const auto& line : data_) {
+		if(IsDimensionParameter(line)) {
+			dimension_ = GetDimensionParameter(line);
+			break;
+		}
 	}
 
 	// Read the matrix itself and check if the size is correct
 	matrix_ = GetDistanceMatrix(data_);
-	return matrix_.Columns() == dimension;
+	return matrix_.Columns() == dimension_;
+}
+
+bool Parser::IsDimensionParameter(const std::string& value) const {
+	std::smatch match;
+	return std::regex_match(value, match, kDimensionParameter);
+}
+
+uint32_t Parser::GetDimensionParameter(const std::string& value) {
+	std::smatch matches;
+
+	if(!std::regex_search(value, matches, kDimensionParameter)) {
+		throw std::runtime_error("Can't find the parameter 'DIMENSION'");
+	}
+
+	// FIXME : add more error handling
+	return std::stoi(matches[1].str());
+}
+
+bool Parser::HasMatrixData(const std::string& value) const {
+	std::smatch match;
+	return std::regex_match(value, match, kMatrixCells);
 }
 
 const Parser::DistanceMatrix& Parser::Get() const noexcept {
 	return matrix_;
 }
 
-Parser::DistanceMatrix Parser::GetDistanceMatrix(const Data& data) {
+Parser::DistanceMatrix Parser::GetDistanceMatrix(const Data& data) const {
 	// Check if the given data is empty
 	if(data.empty()) {
 		throw std::runtime_error("Content is empty. Was the file opened?");
 	}
 
 	DistanceMatrix matrix;
-	for(auto iterator = ++data.begin(); iterator != data.end(); ++iterator) {
-		// Convert the parsed string to a row of matrix
-		const auto line = *iterator;
-		const auto data = utils::Tokenizer::tokenize(line, ' ');
-
-		// Fill the row with the data
-		DistanceMatrix::RowType weights;
-		std::for_each(data.cbegin(), data.cend(), [&weights](const std::string& value) {
-			weights.push_back(std::stoi(value));
-		});
-
-		// Add the row to the matrix
-		matrix.InsertRow(std::move(weights));
+	DistanceMatrix::RowType weights;
+	for(const auto line : data) {
+		if(!HasMatrixData(line)) {
+			continue;
+		}
+		const auto tokens = utils::Tokenizer::tokenize(line, ' ');
+		for(const auto token : tokens) {
+			// If the row is full, we need to push it
+			if(weights.size() >= dimension_) {
+				matrix.InsertRow(std::move(weights));
+				weights = DistanceMatrix::RowType();
+			}
+			weights.push_back(std::stoi(token));
+		}
 	}
+
+	// Add the last row to the matrix
+	matrix.InsertRow(std::move(weights));
 
 	return std::move(matrix);
 }

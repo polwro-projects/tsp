@@ -26,9 +26,9 @@
 #include "io/reader.hpp"
 #include "math/matrix.hpp"
 
-namespace io::file::tsp {
+namespace io::file::txt {
 /**
- * @brief This class is used to parse TSP files
+ * @brief This class is used to parse TXT files
  * 
  */
 class Parser : virtual public IParser {
@@ -62,42 +62,15 @@ public:
 
 protected:
 	/**
-	 * @brief Check of the string contains the dimension parameter
-	 * 
-	 * @param value - the string to check
-	 * @return true if the string contains the parameter
-	 * @return false otherwise
-	 */
-	bool IsDimensionParameter(const std::string& value) const;
-
-	/**
-	 * @brief Get the dimension parameter
-	 * 
-	 * @param value - the string to process
-	 * @return uint32_t - the parameter
-	 */
-	uint32_t GetDimensionParameter(const std::string& value);
-
-	/**
-	 * @brief Check if the line contains matrix data
-	 * 
-	 * @param value - the line to check
-	 * @return true if the line contains matrix data
-	 * @return false otherwise
-	 */
-	bool HasMatrixData(const std::string& value) const;
-
-	/**
 	 * @brief Get the distance matrix from the given data
 	 * 
 	 * @param data - the data to parse to get the matrix
 	 * @return DistanceMatrix - the matrix, parsed from the given data
 	 */
-	DistanceMatrix GetDistanceMatrix(const Data& data) const;
+	static DistanceMatrix GetDistanceMatrix(const Data& data);
 
 protected:
 	DistanceMatrix matrix_;
 	Data data_;
-	uint32_t dimension_;
 };
-} // namespace io::file::tsp
+} // namespace io::file::txt

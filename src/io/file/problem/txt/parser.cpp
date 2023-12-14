@@ -17,13 +17,13 @@
  * under the License.
  */
 
-#include "io/file/txt/parser.hpp"
+#include "io/file/problem/txt/parser.hpp"
 
 #include "utils/tokenizer.hpp"
 
-namespace io::file::txt {
+namespace io::file::problem::txt {
 Parser::Parser(Data data)
-	: data_{std::move(data)} { }
+	: IProblemParser{std::move(data)} { }
 
 bool Parser::Process() {
 	// Check if the data is empty
@@ -42,10 +42,6 @@ bool Parser::Process() {
 	// Read the matrix itself and check if the size is correct
 	matrix_ = GetDistanceMatrix(data_);
 	return matrix_.Columns() == dimension;
-}
-
-const Parser::DistanceMatrix& Parser::Get() const noexcept {
-	return matrix_;
 }
 
 Parser::DistanceMatrix Parser::GetDistanceMatrix(const Data& data) {
@@ -72,4 +68,4 @@ Parser::DistanceMatrix Parser::GetDistanceMatrix(const Data& data) {
 
 	return std::move(matrix);
 }
-} // namespace io::file::txt
+} // namespace io::file::problem::txt

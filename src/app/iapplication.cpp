@@ -22,7 +22,25 @@
 #include <chrono>
 #include <thread>
 
+#include "app/patterns.hpp"
+#include "io/file/problem/tsp/parser.hpp"
+#include "io/file/problem/txt/parser.hpp"
+
 namespace app {
+std::unique_ptr<io::file::problem::IProblemParser>
+IApplication::CreateParser(const std::string& filename, const io::Reader::Data& data) {
+	io::file::problem::IProblemParser* pointer{};
+	std::smatch match;
+	if(std::regex_match(filename, match, kTextFilePattern)) {
+		pointer = new io::file::problem::txt::Parser(data);
+	}
+	if(std::regex_match(filename, match, kTravelingSalesmanProblemFilePattern)) {
+		pointer = new io::file::problem::tsp::Parser(data);
+	}
+
+	return std::unique_ptr<io::file::problem::IProblemParser>{pointer};
+}
+
 IApplication::TestResult IApplication::RunTest(tsp::algorithm::Algorithm* algorithm) const {
 	// Create a watcher thread that will
 	std::mutex mutex;

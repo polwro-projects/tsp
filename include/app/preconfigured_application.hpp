@@ -23,7 +23,7 @@
 #include <string>
 
 #include "app/iapplication.hpp"
-#include "io/file/ini/parser.hpp"
+#include "io/file/configuration/ini/parser.hpp"
 #include "tsp/algorithm/algorithm.hpp"
 
 namespace app {
@@ -55,6 +55,7 @@ public:
 	 */
 	void Start() override;
 
+protected:
 	/**
 	 * @brief Output the test results 
 	 * 
@@ -62,7 +63,6 @@ public:
 	 */
 	void OutputResults(const TestResult& value) override;
 
-protected:
 	/**
 	 * @brief Create an algorithm based on the input
 	 * 
@@ -74,7 +74,7 @@ protected:
 															   const DistanceMatrix& matrix) const;
 
 protected:
-	io::file::ini::Parser::Parameters parameters_;
+	io::file::configuration::ini::Parser::Parameters parameters_;
 	std::ofstream output_file_;
 };
 } // namespace app

@@ -26,7 +26,7 @@
 #include "io/file/iparser.hpp"
 #include "io/reader.hpp"
 
-namespace io::file::ini {
+namespace io::file::configuration::ini {
 /**
  * @brief The class is dedicated to parsing INI files
  * 
@@ -110,4 +110,4 @@ protected:
 	Parameters parameters_;
 	Data data_;
 };
-} // namespace io::file::ini
+} // namespace io::file::configuration::ini

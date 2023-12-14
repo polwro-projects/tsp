@@ -20,22 +20,15 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
-#include "io/file/iparser.hpp"
-#include "io/reader.hpp"
-#include "math/matrix.hpp"
+#include "io/file/problem/iproblemparser.hpp"
 
-namespace io::file::txt {
+namespace io::file::problem::txt {
 /**
  * @brief This class is used to parse TXT files
  * 
  */
-class Parser : virtual public IParser {
-public:
-	using DistanceMatrix = math::Matrix<int32_t, std::vector>;
-	using Data = io::Reader::Data;
-
+class Parser : virtual public IProblemParser {
 public:
 	/**
 	 * @brief Construct a new Parser object
@@ -53,13 +46,6 @@ public:
 	 */
 	bool Process() override;
 
-	/**
-	 * @brief Get the result of the processing
-	 * 
-	 * @return const DistanceMatrix& - the distance matrix to use for calculations
-	 */
-	const DistanceMatrix& Get() const noexcept;
-
 protected:
 	/**
 	 * @brief Get the distance matrix from the given data
@@ -68,9 +54,5 @@ protected:
 	 * @return DistanceMatrix - the matrix, parsed from the given data
 	 */
 	static DistanceMatrix GetDistanceMatrix(const Data& data);
-
-protected:
-	DistanceMatrix matrix_;
-	Data data_;
 };
-} // namespace io::file::txt
+} // namespace io::file::problem::txt

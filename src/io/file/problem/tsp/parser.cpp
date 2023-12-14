@@ -17,14 +17,14 @@
  * under the License.
  */
 
-#include "io/file/tsp/parser.hpp"
+#include "io/file/problem/tsp/parser.hpp"
 
-#include "io/file/tsp/patterns.hpp"
+#include "io/file/problem/tsp/patterns.hpp"
 #include "utils/tokenizer.hpp"
 
-namespace io::file::tsp {
+namespace io::file::problem::tsp {
 Parser::Parser(Data data)
-	: data_{std::move(data)} { }
+	: IProblemParser{std::move(data)} { }
 
 bool Parser::Process() {
 	// Check if the data is empty
@@ -49,7 +49,7 @@ bool Parser::IsDimensionParameter(const std::string& value) const {
 	return std::regex_match(value, match, kDimensionParameter);
 }
 
-uint32_t Parser::GetDimensionParameter(const std::string& value) {
+uint32_t Parser::GetDimensionParameter(const std::string& value) const {
 	std::smatch matches;
 
 	if(!std::regex_search(value, matches, kDimensionParameter)) {
@@ -63,10 +63,6 @@ uint32_t Parser::GetDimensionParameter(const std::string& value) {
 bool Parser::HasMatrixData(const std::string& value) const {
 	std::smatch match;
 	return std::regex_match(value, match, kMatrixCells);
-}
-
-const Parser::DistanceMatrix& Parser::Get() const noexcept {
-	return matrix_;
 }
 
 Parser::DistanceMatrix Parser::GetDistanceMatrix(const Data& data) const {
@@ -97,4 +93,4 @@ Parser::DistanceMatrix Parser::GetDistanceMatrix(const Data& data) const {
 
 	return std::move(matrix);
 }
-} // namespace io::file::tsp
+} // namespace io::file::problem::tsp

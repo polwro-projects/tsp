@@ -35,7 +35,7 @@ PreconfiguredApplication::PreconfiguredApplication(const std::string& config_fil
 		throw std::runtime_error("Reading the INI file failed");
 	}
 
-	io::file::ini::Parser parser{reader.Get()};
+	io::file::configuration::ini::Parser parser{reader.Get()};
 	if(!parser.Process()) {
 		throw std::runtime_error("Parsing the INI file failed");
 	}
@@ -78,14 +78,15 @@ void PreconfiguredApplication::Start() {
 		}
 
 		// Read the TSP file
-		io::Reader reader(section.properties.at("filename"));
+		const auto filename = section.properties.at("filename");
+		io::Reader reader(filename);
 		if(!reader.Process()) {
 			throw std::runtime_error("Reading the TSP file failed");
 		}
 
 		// Read the matrix from the file
-		io::file::tsp::Parser parser{reader.Get()};
-		if(!parser.Process()) {
+		auto parser = CreateParser(filename, reader.Get());
+		if(!parser || !parser->Process()) {
 			throw std::runtime_error("Parsing the TSP file failed");
 		}
 
@@ -98,7 +99,7 @@ void PreconfiguredApplication::Start() {
 		}
 
 		// Create the TSP solver instance from the given matrix and find the solution
-		auto tsp = CreateAlgorithm(algorithm_type, parser.Get());
+		auto tsp = CreateAlgorithm(algorithm_type, parser->Get());
 		for(uint32_t index{1}; index <= std::stoi(section.properties.at("count")); ++index) {
 			const auto result = RunTest(tsp.get());
 			OutputResults(result);

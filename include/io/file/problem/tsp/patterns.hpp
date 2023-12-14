@@ -21,6 +21,7 @@
 
 #include <regex>
 
-namespace io::file::ini {
-const std::regex kSectionHeaderPattern("\\[([a-zA-Z0-9]{1,25})\\]");
+namespace io::file::problem::tsp {
+const std::regex kDimensionParameter("DIMENSION: ([0-9]{1,10})");
+const std::regex kMatrixCells("^[^a-zA-Z][0-9\\s]{0,}");
 }

@@ -20,7 +20,7 @@
 
 #include <chrono>
 
-#include "io/file/tsp/parser.hpp"
+#include "io/file/problem/tsp/parser.hpp"
 #include "tsp/algorithm/inaccurate/sa/algorithm.hpp"
 #include "tsp/algorithm/inaccurate/sa/linear.hpp"
 
@@ -52,6 +52,16 @@ public:
 	 * 
 	 */
 	virtual void Start() = 0;
+
+protected:
+	/**
+	 * @brief Create a new parser object for the corresponding type of files
+	 * 
+	 * @param filename - the name of the file from where to get the extension
+	 * @return std::unique_ptr<io::file::problem::IProblemParser> - the pointer to the parser instance
+	 */
+	static std::unique_ptr<io::file::problem::IProblemParser>
+	CreateParser(const std::string& filename, const io::Reader::Data& data);
 
 	/**
 	 * @brief Output the test results 

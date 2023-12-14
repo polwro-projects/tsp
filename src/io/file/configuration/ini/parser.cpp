@@ -17,14 +17,14 @@
  * under the License.
  */
 
-#include "io/file/ini/parser.hpp"
+#include "io/file/configuration/ini/parser.hpp"
 
 #include <regex>
 
-#include "io/file/ini/patterns.hpp"
+#include "io/file/configuration/ini/patterns.hpp"
 #include "utils/tokenizer.hpp"
 
-namespace io::file::ini {
+namespace io::file::configuration::ini {
 Parser::Parser(Data data)
 	: data_{std::move(data)} { }
 
@@ -85,4 +85,4 @@ bool Parser::IsSectionHeader(const std::string& value) {
 std::string Parser::ProcessSectionHeader(const std::string& value) {
 	return value.substr(1, value.size() - 2);
 }
-} // namespace io::file::ini
+} // namespace io::file::configuration::ini

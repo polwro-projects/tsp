@@ -177,12 +177,12 @@ MenuApplication::DistanceMatrix MenuApplication::ReadMatrix(const std::string& f
 	}
 
 	// Read the matrix from the file
-	io::file::tsp::Parser parser{reader.Get()};
-	if(!parser.Process()) {
+	auto parser = CreateParser(filename, reader.Get());
+	if(!parser || !parser->Process()) {
 		throw std::runtime_error("Parsing the TSP file failed");
 	}
 
-	return parser.Get();
+	return parser->Get();
 }
 
 std::string MenuApplication::GetInputFile() {

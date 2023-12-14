@@ -21,7 +21,7 @@
 
 #include <limits>
 
-#include "io/file/tsp/parser.hpp"
+#include "io/file/problem/iproblemparser.hpp"
 #include "math/matrix.hpp"
 
 namespace tsp::algorithm {
@@ -31,7 +31,7 @@ namespace tsp::algorithm {
  */
 class Algorithm {
 public:
-	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
+	using DistanceMatrix = io::file::problem::IProblemParser::DistanceMatrix;
 	using VertexType = uint32_t;
 
 public:

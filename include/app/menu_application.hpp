@@ -21,7 +21,6 @@
 #include <memory>
 
 #include "app/iapplication.hpp"
-#include "tsp/algorithm/algorithm.hpp"
 #include "ui/menu.hpp"
 
 namespace app {

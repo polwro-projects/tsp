@@ -20,8 +20,7 @@
 
 #include <chrono>
 
-#include "io/file/problem/tsp/parser.hpp"
-#include "tsp/algorithm/inaccurate/sa/algorithm.hpp"
+#include "io/file/problem/iproblemparser.hpp"
 #include "tsp/algorithm/inaccurate/sa/linear.hpp"
 
 namespace app {
@@ -31,7 +30,7 @@ namespace app {
  */
 class IApplication {
 protected:
-	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
+	using DistanceMatrix = io::file::problem::IProblemParser::DistanceMatrix;
 	using EpochType = tsp::algorithm::inaccurate::sa::EpochType;
 	using ExecutionDurationType = std::chrono::microseconds;
 	using LinearCoefficientType = tsp::algorithm::inaccurate::sa::LinearCoefficientType;

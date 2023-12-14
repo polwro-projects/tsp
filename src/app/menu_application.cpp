@@ -119,6 +119,13 @@ std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateSASubmenu(ui::Menu* me
 
 	auto sa_linear_entry = std::make_shared<menu::CallableEntry>(
 		"Calculate the TSP with the linear cooling scheme", [this]() {
+			// Make it impossible to run the algorithm without the timeout
+			if(timeout_ == std::chrono::seconds(0)) {
+				std::cout << "[ERROR] Please, set the timeout for this algorithm before running it!"
+						  << std::endl;
+				return;
+			}
+
 			auto algorithm =
 				std::make_unique<tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random>>(
 					distance_matrix_, temperature_, epoch_size_, linear_coefficient_);

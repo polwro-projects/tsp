@@ -63,7 +63,7 @@ public:
 		// Generate the starting solution
 		current_solution_ = GeneratDefaultSolution();
 
-		while(temperature_ > 0.1) {
+		while(true) {
 			for(uint32_t iteration = 0; iteration < kEpochSize; ++iteration) {
 				// Check if the flag to stop the app was risen
 				if(is_stopped_) {

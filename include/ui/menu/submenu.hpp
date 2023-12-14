@@ -53,11 +53,17 @@ public:
 	void Enter();
 
 	/**
+	 * @brief Exit the submenu
+	 * 
+	 */
+	void Exit();
+
+	/**
 	 * @brief Set the parent entry
 	 * 
 	 * @param parent - the parent of this submenu
 	 */
-	void SetParent(std::weak_ptr<Entry> parent);
+	void SetParent(std::shared_ptr<Submenu> parent);
 
 	/**
 	 * @brief Add the child to the entry
@@ -83,7 +89,7 @@ public:
 
 protected:
 	ui::Menu* menu_;
-	std::weak_ptr<Entry> parent_;
+	std::shared_ptr<Submenu> parent_;
 	std::vector<std::shared_ptr<Entry>> children_;
 };
 } // namespace ui::menu

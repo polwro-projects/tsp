@@ -20,11 +20,16 @@
 #include "ui/menu/submenu.hpp"
 
 #include "ui/menu.hpp"
+#include "ui/menu/callable_entry.hpp"
 
 namespace ui::menu {
 Submenu::Submenu(std::string name, ui::Menu* menu)
 	: Entry{name}
-	, menu_{menu} { }
+	, menu_{menu} {
+
+	auto exit_entry = std::make_shared<menu::CallableEntry>("Exit", [this]() { Exit(); });
+	AddChild(exit_entry);
+}
 
 void Submenu::Enter() {
 	if(!menu_) {
@@ -35,7 +40,13 @@ void Submenu::Enter() {
 	menu_->root_ = shared_from_this();
 }
 
-void Submenu::SetParent(std::weak_ptr<Entry> parent) {
+void Submenu::Exit() {
+	if(parent_) {
+		menu_->root_ = parent_;
+	}
+}
+
+void Submenu::SetParent(std::shared_ptr<Submenu> parent) {
 	parent_ = parent;
 }
 

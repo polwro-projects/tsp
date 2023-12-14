@@ -84,11 +84,6 @@ void PreconfiguredApplication::Start() {
 
 		// Visually separate sections
 		output_file_ << std::endl;
-
-		// Clear the SA parameters
-		temperature_ = 0.0f;
-		epoch_size_ = 0;
-		linear_coefficient_ = 0.0f;
 	}
 }
 

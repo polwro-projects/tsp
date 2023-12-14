@@ -25,7 +25,10 @@ Tokenizer::Tokens Tokenizer::tokenize(std::string line, char delimiter) {
 	size_t position;
 
 	while((position = line.find(delimiter)) != std::string::npos) {
-		tokens.push_back(line.substr(0, position));
+		const auto token = line.substr(0, position);
+		if(!token.empty()) {
+			tokens.push_back(line.substr(0, position));
+		}
 		line.erase(0, position + 1);
 	}
 	tokens.push_back(line);

@@ -128,7 +128,7 @@ PreconfiguredApplication::TimeoutType PreconfiguredApplication::GetTimeout() con
 		return {};
 	}
 
-	return std::chrono::seconds(std::stoi(iterator->properties.at("timeout")));
+	return TimeoutType(std::stoi(iterator->properties.at("timeout")));
 }
 
 void PreconfiguredApplication::OutputResults(const TestResult& value) {
@@ -147,12 +147,14 @@ void PreconfiguredApplication::OutputResults(const TestResult& value) {
 std::unique_ptr<tsp::algorithm::Algorithm>
 PreconfiguredApplication::CreateAlgorithm(const std::string& value,
 										  const DistanceMatrix& matrix) const {
+	using namespace tsp::algorithm;
+
 	if(value == "bf") {
-		return std::make_unique<tsp::algorithm::accurate::BF>(matrix);
+		return std::make_unique<accurate::BF>(matrix);
 	} else if(value == "bnb_dfs") {
-		return std::make_unique<tsp::algorithm::accurate::bb::DFS>(matrix);
+		return std::make_unique<accurate::bb::DFS>(matrix);
 	} else if(value == "linear_sa") {
-		return std::make_unique<tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random>>(
+		return std::make_unique<inaccurate::sa::Linear<tsp::neighborhood::Random>>(
 			matrix, temperature_, epoch_size_, linear_coefficient_);
 	}
 

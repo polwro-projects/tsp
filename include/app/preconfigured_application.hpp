@@ -32,7 +32,6 @@ namespace app {
  * 
  */
 class PreconfiguredApplication : public IApplication {
-	using DistanceMatrix = IApplication::DistanceMatrix;
 	using ConfigurationParameters = io::file::configuration::ini::Parser::Parameters;
 
 public:

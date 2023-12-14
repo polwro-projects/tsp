@@ -30,8 +30,6 @@ namespace app {
  * 
  */
 class MenuApplication : public IApplication {
-	using DistanceMatrix = IApplication::DistanceMatrix;
-
 public:
 	/**
 	 * @brief Construct a new MenuApplication object

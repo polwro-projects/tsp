@@ -27,7 +27,6 @@
 namespace tsp::algorithm::accurate::bb {
 class DFS : public Algorithm {
 public:
-	using DistanceMatrix = Algorithm::DistanceMatrix;
 	using VertexType = Algorithm::VertexType;
 
 	/**

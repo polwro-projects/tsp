@@ -27,9 +27,6 @@
 namespace tsp::algorithm::accurate {
 class BF : public Algorithm {
 public:
-	using DistanceMatrix = Algorithm::DistanceMatrix;
-
-public:
 	/**
 	 * @brief Construct a new DFS object
 	 * 

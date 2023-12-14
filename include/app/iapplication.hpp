@@ -32,10 +32,14 @@ namespace app {
 class IApplication {
 protected:
 	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
+	using EpochType = tsp::algorithm::inaccurate::sa::EpochType;
+	using ExecutionDurationType = std::chrono::microseconds;
+	using LinearCoefficientType = tsp::algorithm::inaccurate::sa::LinearCoefficientType;
+	using TemperatureType = tsp::algorithm::inaccurate::sa::TemperatureType;
 	using TimeoutType = std::chrono::seconds;
 
 	struct TestResult {
-		std::chrono::microseconds duration;
+		ExecutionDurationType duration;
 		tsp::algorithm::Algorithm::Solution solution;
 		bool is_complete;
 	};
@@ -88,8 +92,9 @@ protected:
 
 protected:
 	TimeoutType timeout_{};
-	tsp::algorithm::inaccurate::sa::TemperatureType temperature_;
-	tsp::algorithm::inaccurate::sa::EpochType epoch_size_;
-	tsp::algorithm::inaccurate::sa::LinearCoefficientType linear_coefficient_;
+
+	TemperatureType temperature_;
+	EpochType epoch_size_;
+	LinearCoefficientType linear_coefficient_;
 };
 } // namespace app

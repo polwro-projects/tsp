@@ -45,16 +45,19 @@ IApplication::DistanceMatrix IApplication::ReadMatrix(const std::string& filenam
 
 std::unique_ptr<io::file::problem::IProblemParser>
 IApplication::CreateParser(const std::string& filename, const io::Reader::Data& data) {
-	io::file::problem::IProblemParser* pointer{};
+	using namespace io::file;
+
+	problem::IProblemParser* pointer{};
+
 	std::smatch match;
 	if(std::regex_match(filename, match, kTextFilePattern)) {
-		pointer = new io::file::problem::txt::Parser(data);
+		pointer = new problem::txt::Parser(data);
 	}
 	if(std::regex_match(filename, match, kTravelingSalesmanProblemFilePattern)) {
-		pointer = new io::file::problem::tsp::Parser(data);
+		pointer = new problem::tsp::Parser(data);
 	}
 
-	return std::unique_ptr<io::file::problem::IProblemParser>{pointer};
+	return std::unique_ptr<problem::IProblemParser>{pointer};
 }
 
 IApplication::TestResult IApplication::RunTest(tsp::algorithm::Algorithm* algorithm) const {
@@ -63,7 +66,7 @@ IApplication::TestResult IApplication::RunTest(tsp::algorithm::Algorithm* algori
 	std::condition_variable cv;
 	std::thread watcher{[this, &algorithm, &cv, &mutex]() {
 		// If the timeout is not set don't do anything
-		if(timeout_ == std::chrono::seconds::zero()) {
+		if(timeout_ == TimeoutType::zero()) {
 			return;
 		}
 
@@ -86,7 +89,7 @@ IApplication::TestResult IApplication::RunTest(tsp::algorithm::Algorithm* algori
 
 	// Return the result of the execution
 	const auto duration =
-		std::chrono::duration_cast<std::chrono::microseconds>(end_point - start_point);
+		std::chrono::duration_cast<ExecutionDurationType>(end_point - start_point);
 	const auto solution = algorithm->GetSolution();
 	return {duration, solution, is_complete};
 }

@@ -77,11 +77,11 @@ protected:
 	std::unique_ptr<ui::Menu> CreateMenu();
 
 	/**
-	 * @brief Run the algorithm on the given distance matrix and print the results
+	 * @brief Output the test results 
 	 * 
-	 * @param algorithm - the algorithm to use
+	 * @param value - the test results
 	 */
-	void RunTest(tsp::algorithm::Algorithm& algorithm) const;
+	void OutputResults(const TestResult& value) override;
 
 	/**
 	 * @brief Generate a random matrix of the given size

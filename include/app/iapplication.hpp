@@ -33,6 +33,12 @@ class IApplication {
 protected:
 	using DistanceMatrix = io::file::tsp::Parser::DistanceMatrix;
 
+	struct TestResult {
+		std::chrono::microseconds duration;
+		tsp::algorithm::Algorithm::Solution solution;
+		bool is_complete;
+	};
+
 public:
 	/**
 	 * @brief Destroy the IApplication object
@@ -46,6 +52,20 @@ public:
 	 * 
 	 */
 	virtual void Start() = 0;
+
+	/**
+	 * @brief Output the test results 
+	 * 
+	 * @param value - the test results
+	 */
+	virtual void OutputResults(const TestResult& value) = 0;
+
+	/**
+	 * @brief Run the algorithm on the given distance matrix and print the results
+	 * 
+	 * @param algorithm - the algorithm to use
+	 */
+	TestResult RunTest(tsp::algorithm::Algorithm* algorithm) const;
 
 protected:
 	std::chrono::seconds timeout_{};

@@ -20,7 +20,6 @@
 #include "app/preconfigured_application.hpp"
 
 #include <chrono>
-#include <thread>
 
 #include "io/reader.hpp"
 #include "math/matrix.hpp"
@@ -101,7 +100,8 @@ void PreconfiguredApplication::Start() {
 		// Create the TSP solver instance from the given matrix and find the solution
 		auto tsp = CreateAlgorithm(algorithm_type, parser.Get());
 		for(uint32_t index{1}; index <= std::stoi(section.properties.at("count")); ++index) {
-			RunTest(tsp.get());
+			const auto result = RunTest(tsp.get());
+			OutputResults(result);
 
 			// Clear the internal solution
 			tsp->Clear();
@@ -117,46 +117,17 @@ void PreconfiguredApplication::Start() {
 	}
 }
 
-void PreconfiguredApplication::RunTest(tsp::algorithm::Algorithm* algorithm) {
-	// FIXME : decompose this function
-
-	// Create a watcher thread that will
-	std::mutex mutex;
-	std::condition_variable cv;
-	std::thread watcher{[this, &algorithm, &cv, &mutex]() {
-		// If the timeout is not set don't do anything
-		if(timeout_ == std::chrono::seconds::zero()) {
-			return;
-		}
-
-		std::unique_lock<std::mutex> lock(mutex);
-		cv.wait_for(lock, timeout_);
-		algorithm->Stop();
-	}};
-
-	// Have a small delay to make the watcher thread wait on the conditional variable
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-	// Calculate the result and get the time of function's execution
-	const auto start_point = std::chrono::system_clock::now();
-	const auto is_complete = algorithm->Solve();
-	const auto end_point = std::chrono::system_clock::now();
-
+void PreconfiguredApplication::OutputResults(const TestResult& value) {
 	// Store the duration of the operation
-	const auto duration =
-		std::chrono::duration_cast<std::chrono::microseconds>(end_point - start_point);
-	output_file_ << duration.count() << ",";
+	output_file_ << value.duration.count() << ",";
 
-	// Print the solution to the output file
-	const auto solution = algorithm->GetSolution();
-	for(const auto position : solution.path) {
-		output_file_ << position << " ";
+	// Print the path, it's cost and if the calculation was finished}
+	for(uint32_t index = 0; index < value.solution.path.size() - 2; ++index) {
+		const auto position = value.solution.path.at(index);
+		output_file_ << position << "->";
 	}
-	output_file_ << ", " << solution.cost << ", " << is_complete << std::endl;
-
-	// Wait for the thread to finish
-	cv.notify_one();
-	watcher.join();
+	output_file_ << value.solution.path.back() << ", " << value.solution.cost << ", "
+				 << value.is_complete << std::endl;
 }
 
 std::unique_ptr<tsp::algorithm::Algorithm>

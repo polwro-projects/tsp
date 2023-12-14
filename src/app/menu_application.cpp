@@ -32,14 +32,6 @@
 #include "ui/menu/callable_entry.hpp"
 #include "ui/menu/submenu.hpp"
 
-std::ostream& operator<<(std::ostream& stream,
-						 tsp::algorithm::Algorithm::Solution::Path positions) {
-	for(const auto position : positions) {
-		stream << position << " ";
-	}
-	return stream;
-}
-
 namespace app {
 MenuApplication::MenuApplication()
 	: menu_{CreateMenu()} { }
@@ -113,22 +105,26 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 
 	auto bf_entry =
 		std::make_shared<menu::CallableEntry>("Calculate the TSP using BF (Brute Force)", [this]() {
-			tsp::algorithm::accurate::BF bf{distance_matrix_};
-			RunTest(bf);
+			auto algorithm = std::make_unique<tsp::algorithm::accurate::BF>(distance_matrix_);
+			const auto results = RunTest(algorithm.get());
+			OutputResults(results);
 		});
 
 	auto bnb_dfs_entry = std::make_shared<menu::CallableEntry>(
 		"Calculate the TSP using BB (Branch and Bound) algorithm with DFS", [this]() {
-			tsp::algorithm::accurate::bb::DFS dfs{distance_matrix_};
-			RunTest(dfs);
+			auto algorithm = std::make_unique<tsp::algorithm::accurate::bb::DFS>(distance_matrix_);
+			const auto results = RunTest(algorithm.get());
+			OutputResults(results);
 		});
 
 	auto sa_linear_entry = std::make_shared<menu::CallableEntry>(
 		"Calculate the TSP using SA (Simulated Annealing) algorithm with linear cooling scheme",
 		[this]() {
-			tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random> sa{
-				distance_matrix_, temperature_, epoch_size_, linear_coefficient_};
-			RunTest(sa);
+			auto algorithm =
+				std::make_unique<tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random>>(
+					distance_matrix_, temperature_, epoch_size_, linear_coefficient_);
+			const auto results = RunTest(algorithm.get());
+			OutputResults(results);
 		});
 
 	auto menu = std::make_unique<Menu>();
@@ -172,44 +168,17 @@ std::string MenuApplication::GetInputFile() {
 	return filename;
 }
 
-void MenuApplication::RunTest(tsp::algorithm::Algorithm& algorithm) const {
-	// FIXME : decompose this function
-
-	// Create a watcher thread that will
-	std::mutex mutex;
-	std::condition_variable cv;
-	std::thread watcher{[this, &algorithm, &cv, &mutex]() {
-		// If the timeout is not set don't do anything
-		if(timeout_ == std::chrono::seconds::zero()) {
-			return;
-		}
-
-		std::unique_lock<std::mutex> lock(mutex);
-		cv.wait_for(lock, timeout_);
-		algorithm.Stop();
-	}};
-
-	// Have a small delay to make the watcher thread wait on the conditional variable
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-	// Calculate the result and get the time of function's execution
-	const auto start_point = std::chrono::system_clock::now();
-	const auto is_complete = algorithm.Solve();
-	const auto end_point = std::chrono::system_clock::now();
-
+void MenuApplication::OutputResults(const TestResult& value) {
 	// Store the duration of the operation
-	const auto duration =
-		std::chrono::duration_cast<std::chrono::microseconds>(end_point - start_point);
-	std::cout << duration.count() << ",";
+	std::cout << "Time [ms] : " << value.duration.count() << " | Path: ";
 
-	// Print the solution to the output file
-	const auto solution = algorithm.GetSolution();
-	std::cout << solution.path << ", " << solution.cost << " has finished : " << is_complete
-			  << std::endl;
-
-	// Wait for the thread to finish
-	cv.notify_one();
-	watcher.join();
+	// Print the path, it's cost and if the calculation was finished
+	for(uint32_t index = 0; index < value.solution.path.size() - 2; ++index) {
+		const auto position = value.solution.path.at(index);
+		std::cout << position << "->";
+	}
+	std::cout << value.solution.path.back() << " | Cost: " << value.solution.cost
+			  << " | Has finished : " << value.is_complete << std::endl;
 }
 
 MenuApplication::DistanceMatrix MenuApplication::GenerateRandomMatrix(uint32_t size) {

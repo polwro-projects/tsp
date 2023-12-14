@@ -3,6 +3,7 @@
 project ("TSP")
 
 set(SOURCES
+	"src/app/iapplication.cpp"
 	"src/app/preconfigured_application.cpp"
 	"src/app/menu_application.cpp"
 	"src/io/file/ini/parser.cpp"

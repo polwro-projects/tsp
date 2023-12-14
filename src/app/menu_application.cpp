@@ -124,6 +124,11 @@ std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateSASubmenu(ui::Menu* me
 					distance_matrix_, temperature_, epoch_size_, linear_coefficient_);
 			const auto results = RunTest(algorithm.get());
 			OutputResults(results);
+
+			// Get some additional output based on the temperature
+			const auto temperature = algorithm->GetTemperature();
+			std::cout << "exp(-1/T_k) :" << std::exp(-1 / temperature)
+					  << " | Temperature : " << temperature << std::endl;
 		});
 
 	auto submenu = std::make_unique<menu::Submenu>("Simulated Annealing", menu);

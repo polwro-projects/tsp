@@ -32,7 +32,7 @@ template <class NeighborhoodAlgorithm>
 class Algorithm : public tsp::algorithm::Algorithm, NeighborhoodAlgorithm {
 	static_assert(std::is_class_v<NeighborhoodAlgorithm>);
 
-protected:
+public:
 	/**
 	 * @brief Construct a new Algorithm object
 	 * 
@@ -94,6 +94,16 @@ protected:
 		return true;
 	}
 
+	/**
+	 * @brief Get the temperature
+	 * 
+	 * @return TemperatureType - the current temperature
+	 */
+	TemperatureType GetTemperature() const {
+		return temperature_;
+	}
+
+protected:
 	/**
 	 * @brief Generate the starting solution
 	 * 

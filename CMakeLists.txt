@@ -10,6 +10,7 @@ set(SOURCES
 	"src/io/file/problem/tsp/parser.cpp"
 	"src/io/file/problem/txt/parser.cpp"
 	"src/io/file/problem/iproblemparser.cpp"
+	"src/io/file/route/parser.cpp"
 	"src/io/reader.cpp"
 	"src/tsp/algorithm/accurate/bb/dfs.cpp"
 	"src/tsp/algorithm/accurate/bf.cpp"

@@ -81,6 +81,14 @@ protected:
 	std::unique_ptr<ui::menu::Submenu> CreateMatrixSubmenu(ui::Menu* menu);
 
 	/**
+	 * @brief Create the route manipulation submenu
+	 * 
+	 * @param menu - the menu object to be used in the submenu instance
+	 * @return std::unique_ptr<ui::Submenu> the submenu with the route modification entries
+	 */
+	std::unique_ptr<ui::menu::Submenu> CreateRouteSubmenu(ui::Menu* menu);
+
+	/**
 	 * @brief Output the test results 
 	 * 
 	 * @param value - the test results
@@ -107,5 +115,8 @@ protected:
 protected:
 	DistanceMatrix distance_matrix_;
 	std::unique_ptr<ui::Menu> menu_;
+
+	tsp::algorithm::Algorithm::Solution solution_;
+	std::string output_file_;
 };
 } // namespace app

@@ -24,6 +24,7 @@
 #include <random>
 #include <thread>
 
+#include "io/file/route/parser.hpp"
 #include "math/matrix.hpp"
 #include "tsp/algorithm/accurate/bb/dfs.hpp"
 #include "tsp/algorithm/accurate/bf.hpp"
@@ -67,6 +68,9 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 			auto algorithm = std::make_unique<tsp::algorithm::accurate::BF>(distance_matrix_);
 			const auto results = RunTest(algorithm.get());
 			OutputResults(results);
+
+			// Store the last solution in the class
+			solution_ = results.solution;
 		});
 
 	auto bnb_dfs_entry = std::make_shared<menu::CallableEntry>(
@@ -74,6 +78,9 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 			auto algorithm = std::make_unique<tsp::algorithm::accurate::bb::DFS>(distance_matrix_);
 			const auto results = RunTest(algorithm.get());
 			OutputResults(results);
+
+			// Store the last solution in the class
+			solution_ = results.solution;
 		});
 
 	// Create the main menu
@@ -86,8 +93,12 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	auto sa_submenu = CreateSASubmenu(menu.get());
 	sa_submenu->SetParent(root_entry);
 
+	auto route_submenu = CreateRouteSubmenu(menu.get());
+	route_submenu->SetParent(root_entry);
+
 	// Set the main menu
 	root_entry->AddChild(std::move(matrix_submenu));
+	root_entry->AddChild(std::move(route_submenu));
 	root_entry->AddChild(timeout_entry);
 	root_entry->AddChild(bf_entry);
 	root_entry->AddChild(bnb_dfs_entry);
@@ -131,6 +142,9 @@ std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateSASubmenu(ui::Menu* me
 					distance_matrix_, temperature_, epoch_size_, linear_coefficient_);
 			const auto results = RunTest(algorithm.get());
 			OutputResults(results);
+
+			// Store the last solution in the class
+			solution_ = results.solution;
 
 			// Get some additional output based on the temperature
 			const auto temperature = algorithm->GetTemperature();
@@ -177,6 +191,76 @@ std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateMatrixSubmenu(ui::Menu
 	submenu->AddChild(read_entry);
 	submenu->AddChild(generate_entry);
 	submenu->AddChild(print_entry);
+
+	return std::move(submenu);
+}
+
+std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateRouteSubmenu(ui::Menu* menu) {
+	using namespace ui;
+
+	auto file_entry = std::make_shared<menu::CallableEntry>("Change the output file", [this]() {
+		std::cout << "Please, enter the name of the output file: ";
+		std::cin >> output_file_;
+	});
+
+	auto read_entry =
+		std::make_shared<menu::CallableEntry>("Read the route from the file", [this]() {
+			io::Reader reader(output_file_);
+			if(!reader.Process()) {
+				std::cout << "[ERROR] Reading the file failed." << std::endl;
+				return;
+			}
+
+			// Read the matrix from the file
+			io::file::route::Parser parser(reader.Get());
+			if(!parser.Process()) {
+				std::cout << "[ERROR] Parsing the file failed." << std::endl;
+				return;
+			}
+
+			solution_ = parser.Get();
+		});
+
+	auto write_entry =
+		std::make_shared<menu::CallableEntry>("Write the route to the file", [this]() {
+			if(solution_.path.empty()) {
+				std::cout << "[ERROR] The solution to write does not exists." << std::endl;
+				return;
+			}
+
+			std::ofstream file{output_file_};
+			if(!file.is_open()) {
+				std::cout << "[ERROR] The file was not opened." << std::endl;
+				return;
+			}
+
+			file << solution_.path.size() << std::endl;
+			for(const auto index : solution_.path) {
+				file << index << std::endl;
+			}
+		});
+
+	auto cost_entry =
+		std::make_shared<menu::CallableEntry>("Calculate the cost of the route", [this]() {
+			if(solution_.path.empty()) {
+				std::cout << "[ERROR] The solution does not exists." << std::endl;
+				return;
+			}
+
+			uint32_t cost{};
+			for(uint32_t index = 0; index < solution_.path.size() - 1; ++index) {
+				const auto start = solution_.path.at(index);
+				const auto end = solution_.path.at(index + 1);
+				cost += distance_matrix_(start, end);
+			}
+			std::cout << "Cost: " << cost << std::endl;
+		});
+
+	auto submenu = std::make_unique<menu::Submenu>("Route manipulation", menu);
+	submenu->AddChild(file_entry);
+	submenu->AddChild(read_entry);
+	submenu->AddChild(write_entry);
+	submenu->AddChild(cost_entry);
 
 	return std::move(submenu);
 }

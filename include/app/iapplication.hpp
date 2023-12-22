@@ -92,8 +92,8 @@ protected:
 protected:
 	TimeoutType timeout_{};
 
-	TemperatureType temperature_;
-	EpochType epoch_size_;
-	LinearCoefficientType linear_coefficient_;
+	TemperatureType temperature_{};
+	EpochType epoch_size_{};
+	LinearCoefficientType linear_coefficient_{};
 };
 } // namespace app

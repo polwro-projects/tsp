@@ -19,6 +19,8 @@
 
 #include "io/reader.hpp"
 
+#include <algorithm>
+
 namespace io {
 Reader::Reader(const std::string& file)
 	: filename_{file} { }

@@ -25,7 +25,7 @@
 
 namespace tsp::algorithm::inaccurate::sa {
 
-using TemperatureType = float;
+using TemperatureType = double;
 using EpochType = uint32_t;
 
 template <class NeighborhoodAlgorithm>
@@ -44,7 +44,7 @@ public:
 		: tsp::algorithm::Algorithm{distances}
 		, NeighborhoodAlgorithm{static_cast<uint32_t>(distances.Columns())}
 		, kMaxTemperature{temperature}
-		, kEpochSize{epoch_size}
+		, kEpochSize{epoch_size == 0 ? CalculateEpochSize() : epoch_size}
 		, temperature_{temperature} {
 
 		// Set up the random integer generator
@@ -62,6 +62,9 @@ public:
 
 		// Generate the starting solution
 		current_solution_ = GeneratDefaultSolution();
+		if(temperature_ == 0.0) {
+			temperature_ = CalculateStartingTemperature();
+		}
 
 		while(true) {
 			for(uint32_t iteration = 0; iteration < kEpochSize; ++iteration) {
@@ -123,6 +126,75 @@ protected:
 	}
 
 	/**
+	 * @brief Calculate the starting temperature
+	 * 
+	 * @return TemperatureType - the starting temperature
+	 */
+	TemperatureType CalculateStartingTemperature() const {
+		const int32_t minimum = CalculateMinimumPathCost();
+		const int32_t maximum = CalculateMaximumPathCost();
+		const int32_t delta = minimum - maximum;
+		return delta / std::log(0.8);
+	}
+
+	/**
+	 * @brief Get the minimum possible cost of a path in the given problem
+	 * 
+	 * @return uint32_t the minimum cost
+	 */
+	uint32_t CalculateMinimumPathCost() const {
+		uint32_t cost{};
+		for(uint32_t row = 0; row < distances_.Rows(); ++row) {
+			uint32_t minimum{std::numeric_limits<uint32_t>::max()};
+			for(uint32_t column = 0; column < distances_.Columns(); ++column) {
+				if(column == row) {
+					continue;
+				}
+
+				const auto value = distances_(row, column);
+				if(value < minimum) {
+					minimum = value;
+				}
+			}
+
+			cost += minimum;
+		}
+
+		return cost;
+	}
+
+	/**
+	 * @brief Get the maximum possible cost of a path in the given problem
+	 * 
+	 * @return uint32_t the maximum cost
+	 */
+	uint32_t CalculateMaximumPathCost() const {
+		uint32_t cost{};
+		for(uint32_t row = 0; row < distances_.Rows(); ++row) {
+			uint32_t maximum{};
+			for(uint32_t column = 0; column < distances_.Columns(); ++column) {
+				if(column == row) {
+					continue;
+				}
+
+				const auto value = distances_(row, column);
+				if(value > maximum) {
+					maximum = value;
+				}
+			}
+
+			cost += maximum;
+		}
+
+		return cost;
+	}
+
+	inline EpochType CalculateEpochSize() const {
+		const auto n = distances_.Columns();
+		return std::sqrt(n) * kEpochPrescaler;
+	}
+
+	/**
 	 * @brief Decrease the existing temperature
 	 * 
 	 * @param temperature the temperature to change
@@ -164,11 +236,13 @@ protected:
 	}
 
 protected:
+	static constexpr double kEpochPrescaler{0.6};
 	static constexpr uint32_t kAcceptorFactor{10};
+
 	const TemperatureType kMaxTemperature;
 	const EpochType kEpochSize;
 
-	TemperatureType temperature_;
+	TemperatureType temperature_{};
 	Solution current_solution_;
 
 	mutable std::mt19937 solution_acceptor_generator_;

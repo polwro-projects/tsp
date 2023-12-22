@@ -19,6 +19,8 @@
 
 #include "io/file/problem/txt/parser.hpp"
 
+#include <algorithm>
+
 #include "utils/tokenizer.hpp"
 
 namespace io::file::problem::txt {

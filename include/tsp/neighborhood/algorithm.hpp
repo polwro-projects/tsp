@@ -33,6 +33,6 @@ public:
      * @param path the path to find a soltuion in the neighborhood for
      * @return Path the path that is in a neighborhood to the existing one
      */
-	virtual Path GetNeighbor(const Path& path) noexcept = 0;
+	virtual Path GetNeighbor(const Path& path) const noexcept = 0;
 };
 } // namespace tsp::neighborhood

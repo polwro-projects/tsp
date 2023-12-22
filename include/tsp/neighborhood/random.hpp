@@ -40,10 +40,10 @@ public:
      * @param path the path to find a soltuion in the neighborhood for
      * @return Path the path that is in a neighborhood to the existing one
      */
-	Path GetNeighbor(const Path& path) noexcept override;
+	Path GetNeighbor(const Path& path) const noexcept override;
 
 protected:
-	std::mt19937 neighbor_generator_;
-	std::uniform_int_distribution<std::mt19937::result_type> neighbor_distribution_;
+	mutable std::mt19937 neighbor_generator_;
+	mutable std::uniform_int_distribution<std::mt19937::result_type> neighbor_distribution_;
 };
 } // namespace tsp::neighborhood

@@ -20,6 +20,8 @@
 #include "app/iapplication.hpp"
 
 #include <chrono>
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 
 #include "app/patterns.hpp"

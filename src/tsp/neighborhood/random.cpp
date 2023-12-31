@@ -26,6 +26,7 @@ Random::Random(uint32_t size)
 	std::random_device device;
 	neighbor_generator_ = std::mt19937{device()};
 }
+
 Random::Path Random::GetNeighbor(const Path& path) const noexcept {
 	auto neighbor = path;
 	const auto first_index = neighbor_distribution_(neighbor_generator_);

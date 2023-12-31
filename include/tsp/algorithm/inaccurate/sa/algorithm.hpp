@@ -22,6 +22,7 @@
 #include <random>
 
 #include "tsp/algorithm/algorithm.hpp"
+#include "tsp/neighborhood/random.hpp"
 
 namespace tsp::algorithm::inaccurate::sa {
 
@@ -43,9 +44,9 @@ public:
 	Algorithm(DistanceMatrix distances, TemperatureType temperature, EpochType epoch_size)
 		: tsp::algorithm::Algorithm{distances}
 		, NeighborhoodAlgorithm{static_cast<uint32_t>(distances.Columns())}
-		, kMaxTemperature{temperature}
+		, kMaxTemperature{temperature == 0.0 ? CalculateStartingTemperature() : temperature}
 		, kEpochSize{epoch_size == 0 ? CalculateEpochSize() : epoch_size}
-		, temperature_{temperature} {
+		, temperature_{kMaxTemperature} {
 
 		// Set up the random integer generator
 		std::random_device device;
@@ -62,9 +63,6 @@ public:
 
 		// Generate the starting solution
 		current_solution_ = GeneratDefaultSolution();
-		if(temperature_ == 0.0) {
-			temperature_ = CalculateStartingTemperature();
-		}
 
 		while(true) {
 			for(uint32_t iteration = 0; iteration < kEpochSize; ++iteration) {
@@ -131,67 +129,31 @@ protected:
 	 * @return TemperatureType - the starting temperature
 	 */
 	TemperatureType CalculateStartingTemperature() const {
-		const int32_t minimum = CalculateMinimumPathCost();
-		const int32_t maximum = CalculateMaximumPathCost();
-		const int32_t delta = minimum - maximum;
-		return delta / std::log(0.8);
+		const tsp::neighborhood::Random algorithm{static_cast<uint32_t>(distances_.Rows())};
+
+		uint32_t mean_delta = 0;
+		for(uint32_t iteration = 0; iteration < kMeanDeltaIterations; ++iteration) {
+			const auto solution = GeneratDefaultSolution();
+			const auto neighbor = algorithm.GetNeighbor(solution.path);
+
+			const auto old_cost = solution.cost;
+			const auto new_cost = CalculateCost(neighbor);
+			const auto delta = std::max(old_cost, new_cost) - std::min(old_cost, new_cost);
+			mean_delta += delta;
+		}
+
+		mean_delta /= kMeanDeltaIterations;
+		return -(mean_delta / std::log(0.8));
 	}
 
 	/**
-	 * @brief Get the minimum possible cost of a path in the given problem
+	 * @brief Calculate the size of the epoch
 	 * 
-	 * @return uint32_t the minimum cost
+	 * @return EpochType the size of the epoch
 	 */
-	uint32_t CalculateMinimumPathCost() const {
-		uint32_t cost{};
-		for(uint32_t row = 0; row < distances_.Rows(); ++row) {
-			uint32_t minimum{std::numeric_limits<uint32_t>::max()};
-			for(uint32_t column = 0; column < distances_.Columns(); ++column) {
-				if(column == row) {
-					continue;
-				}
-
-				const auto value = distances_(row, column);
-				if(value < minimum) {
-					minimum = value;
-				}
-			}
-
-			cost += minimum;
-		}
-
-		return cost;
-	}
-
-	/**
-	 * @brief Get the maximum possible cost of a path in the given problem
-	 * 
-	 * @return uint32_t the maximum cost
-	 */
-	uint32_t CalculateMaximumPathCost() const {
-		uint32_t cost{};
-		for(uint32_t row = 0; row < distances_.Rows(); ++row) {
-			uint32_t maximum{};
-			for(uint32_t column = 0; column < distances_.Columns(); ++column) {
-				if(column == row) {
-					continue;
-				}
-
-				const auto value = distances_(row, column);
-				if(value > maximum) {
-					maximum = value;
-				}
-			}
-
-			cost += maximum;
-		}
-
-		return cost;
-	}
-
 	inline EpochType CalculateEpochSize() const {
 		const auto n = distances_.Columns();
-		return std::sqrt(n) * kEpochPrescaler;
+		return std::pow(n, 2) * kEpochPrescaler;
 	}
 
 	/**
@@ -236,7 +198,8 @@ protected:
 	}
 
 protected:
-	static constexpr double kEpochPrescaler{0.6};
+	static constexpr uint32_t kMeanDeltaIterations{5000};
+	static constexpr double kEpochPrescaler{0.1};
 	static constexpr uint32_t kAcceptorFactor{10};
 
 	const TemperatureType kMaxTemperature;

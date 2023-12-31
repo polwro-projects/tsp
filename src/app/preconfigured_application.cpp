@@ -55,9 +55,9 @@ void PreconfiguredApplication::Start() {
 
 		// Read the parameters if they exist
 		try {
+			linear_coefficient_ = std::stof(section.properties.at("linear_coefficient"));
 			temperature_ = std::stof(section.properties.at("temperature"));
 			epoch_size_ = std::stoi(section.properties.at("epoch_size"));
-			linear_coefficient_ = std::stof(section.properties.at("linear_coefficient"));
 		} catch(const std::exception& e) {
 			// Do nothing, maybe the algorithm is not correct or something
 		}

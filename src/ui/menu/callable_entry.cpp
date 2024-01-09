@@ -20,7 +20,7 @@
 #include "ui/menu/callable_entry.hpp"
 
 namespace ui::menu {
-CallableEntry::CallableEntry(std::string name, std::function<void()> callback)
+CallableEntry::CallableEntry(std::string name, CallbackType callback)
 	: Entry{name}
 	, callback_{callback} { }
 

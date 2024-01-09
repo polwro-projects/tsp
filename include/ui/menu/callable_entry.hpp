@@ -32,13 +32,16 @@ namespace ui::menu {
  */
 class CallableEntry : public Entry {
 public:
+	using CallbackType = std::function<void()>;
+
+public:
 	/**
 	 * @brief Construct a new Callable Entry object
 	 * 
 	 * @param name - the name of the menu
 	 * @param callback - the callback to be called when this menu is chosen
 	 */
-	CallableEntry(std::string name, std::function<void()> callback);
+	CallableEntry(std::string name, CallbackType callback);
 
 public:
 	/**
@@ -48,6 +51,6 @@ public:
 	void Enter();
 
 protected:
-	std::function<void()> callback_;
+	const CallbackType callback_;
 };
 } // namespace ui::menu

@@ -19,6 +19,8 @@
 
 #include "ui/menu/callable_entry.hpp"
 
+#include <stdexcept>
+
 namespace ui::menu {
 CallableEntry::CallableEntry(std::string name, CallbackType callback)
 	: Entry{name}
@@ -26,8 +28,8 @@ CallableEntry::CallableEntry(std::string name, CallbackType callback)
 
 void CallableEntry::Enter() {
 	if(!callback_) {
-		// FIXME : add some more handling here
-		return;
+		throw std::runtime_error(
+			"This menu entry doesn't have an associated callback. This is a bug.");
 	}
 
 	callback_();

@@ -17,6 +17,8 @@ set(SOURCES
 	"src/tsp/algorithm/algorithm.cpp"
 	"src/tsp/operators/crossover/algorithm.cpp"
 	"src/tsp/operators/crossover/ox.cpp"
+	"src/tsp/operators/mutation/algorithm.cpp"
+	"src/tsp/operators/mutation/swap.cpp"
 	"src/tsp/operators/operator.cpp"
 	"src/tsp/neighborhood/random.cpp"
 	"src/ui/menu/callable_entry.cpp"

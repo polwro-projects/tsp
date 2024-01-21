@@ -19,6 +19,8 @@
 
 #include "tsp/algorithm/algorithm.hpp"
 
+#include <algorithm>
+
 namespace tsp::algorithm {
 Algorithm::Algorithm(DistanceMatrix distances)
 	: distances_{distances} {
@@ -40,12 +42,6 @@ void Algorithm::Clear() {
 	solution_.Clear();
 }
 
-void Algorithm::Solution::Clear() {
-	path.clear();
-
-	cost = std::numeric_limits<uint32_t>::max();
-}
-
 uint32_t Algorithm::CalculateCost(const Solution::Path& value) const {
 	uint32_t result{};
 	for(uint32_t index{}; index < value.size() - 1; ++index) {
@@ -53,5 +49,11 @@ uint32_t Algorithm::CalculateCost(const Solution::Path& value) const {
 		result += distance;
 	}
 	return result;
+}
+
+void Algorithm::Solution::Clear() {
+	path.clear();
+
+	cost = std::numeric_limits<uint32_t>::max();
 }
 } // namespace tsp::algorithm

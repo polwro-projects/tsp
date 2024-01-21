@@ -41,15 +41,16 @@ public:
 	 */
 	struct Solution {
 		using Path = std::vector<VertexType>;
-
-		Path path;
-		uint32_t cost{std::numeric_limits<uint32_t>::max()};
+		using SizeType = uint32_t;
 
 		/**
 		 * @brief Clear the existing solution
 		 * 
 		 */
 		void Clear();
+
+		Path path;
+		SizeType cost{std::numeric_limits<SizeType>::max()};
 	};
 
 public:

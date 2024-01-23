@@ -25,7 +25,11 @@
 #include "math/matrix.hpp"
 #include "tsp/algorithm/accurate/bb/dfs.hpp"
 #include "tsp/algorithm/accurate/bf.hpp"
+#include "tsp/algorithm/inaccurate/genetic/algorithm.hpp"
 #include "tsp/neighborhood/random.hpp"
+#include "tsp/operators/crossover/ox.hpp"
+#include "tsp/operators/mutation/swap.hpp"
+#include "tsp/operators/selection/roulette.hpp"
 
 namespace app {
 PreconfiguredApplication::PreconfiguredApplication(const std::string& config_file) {
@@ -131,7 +135,7 @@ void PreconfiguredApplication::OutputResults(const TestResult& value) {
 	output_file_ << value.duration.count() << ",";
 
 	// Print the path, it's cost and if the calculation was finished}
-	for(uint32_t index = 0; index < value.solution.path.size() - 2; ++index) {
+	for(uint32_t index = 0; index < value.solution.path.size() - 1; ++index) {
 		const auto position = value.solution.path.at(index);
 		output_file_ << position << "->";
 	}
@@ -151,6 +155,23 @@ PreconfiguredApplication::CreateAlgorithm(const std::string& value,
 	} else if(value == "linear_sa") {
 		return std::make_unique<inaccurate::sa::Linear<tsp::neighborhood::Random>>(
 			matrix, temperature_, epoch_size_, linear_coefficient_);
+	} else if(value == "ga") {
+		const auto crossover_algorithm = new tsp::operators::crossover::OX(matrix.Columns());
+		crossover_algorithm->SetProbability(0.8);
+
+		const auto mutation_algorithm = new tsp::operators::mutation::Swap(matrix.Columns());
+		mutation_algorithm->SetProbability(0.01);
+
+		const auto selection_algorithm = new tsp::operators::selection::Roulette(30);
+
+		auto algorithm = std::make_unique<inaccurate::genetic::Algorithm>(matrix, 30, 16);
+		algorithm->SetCrossoverAlgorithm(
+			std::unique_ptr<tsp::operators::crossover::Algorithm>{crossover_algorithm});
+		algorithm->SetMutationAlgorithm(
+			std::unique_ptr<tsp::operators::mutation::Algorithm>(mutation_algorithm));
+		algorithm->SetSelectionAlgorithm(
+			std::unique_ptr<tsp::operators::selection::Algorithm>(selection_algorithm));
+		return algorithm;
 	}
 
 	return {};

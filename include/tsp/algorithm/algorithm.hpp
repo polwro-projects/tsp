@@ -49,6 +49,16 @@ public:
 		 */
 		void Clear();
 
+		/**
+		 * @brief Overloaded spaceship operator
+		 * 
+		 * @param rhs another object to compare with
+		 * @return std::strong_ordering
+		 */
+		auto operator<=>(const Solution& rhs) const {
+			return cost <=> rhs.cost;
+		}
+
 		Path path;
 		SizeType cost{std::numeric_limits<SizeType>::max()};
 	};

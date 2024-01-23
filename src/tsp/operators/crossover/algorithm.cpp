@@ -47,22 +47,22 @@ Algorithm::PopulationType Algorithm::Cross(SelectionPoolType pool, PopulationSiz
 	PopulationType population;
 	while(population.size() < size) {
 		// Get two random parents
-		const auto first = pool.at(rand() % pool.size()).path;
-		const auto second = pool.at(rand() % pool.size()).path;
+		const auto first = pool.at(rand() % pool.size());
+		const auto second = pool.at(rand() % pool.size());
 
 		// If the probability is not met, push the parents to the population
 		const auto probability = probability_distribution_(probability_generator_);
 		if(probability >= probability_) {
 			// Add the child to the result population
-			population.emplace_back(first, 0);
-			population.emplace_back(second, 0);
+			population.push_back(std::move(first));
+			population.push_back(std::move(second));
 
 			continue;
 		}
 
 		// Add the children to the  population
-		population.emplace_back(Cross(first, second), 0);
-		population.emplace_back(Cross(second, first), 0);
+		population.emplace_back(Cross(first.path, second.path), 0);
+		population.emplace_back(Cross(second.path, first.path), 0);
 	}
 
 	return population;

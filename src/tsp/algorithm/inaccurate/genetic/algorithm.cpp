@@ -120,7 +120,11 @@ Algorithm::CreatePopulation(const PopulationSizeType popultaion_size) const {
 Algorithm::PopulationType Algorithm::UpdateCost(PopulationType population) const {
 	// Calculate cost of every solution in the population
 	for(auto iterator = population.begin(); iterator != population.end(); ++iterator) {
-		std::cout << "COST : " << iterator->cost << std::endl;
+		// If the cost is calculated already, skip the next operation
+		if(iterator->cost != 0) {
+			continue;
+		}
+
 		iterator->cost = CalculateCost(iterator->path);
 	}
 

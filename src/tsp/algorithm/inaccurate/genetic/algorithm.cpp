@@ -82,18 +82,37 @@ bool Algorithm::Solve() {
 	return true;
 }
 
-Algorithm::PopulationType Algorithm::CreatePopulation(PopulationSizeType popultaion_size) const {
+Algorithm::Path Algorithm::GenerateRandomPath(const PathSize size) const {
+	// Set up the random number generator
+	std::random_device device;
+	std::mt19937 generator(device());
+	std::uniform_real_distribution<double> ditribution(0, size);
+
+	Solution::Path path;
+	std::vector<bool> is_added(size);
+	while(path.size() < size) {
+		const auto element = ditribution(generator);
+
+		// Check if the element is already in the path
+		if(!is_added.at(element)) {
+			path.push_back(element);
+
+			// Mark the element added
+			is_added.at(element) = true;
+		}
+	}
+
+	return path;
+}
+
+Algorithm::PopulationType
+Algorithm::CreatePopulation(const PopulationSizeType popultaion_size) const {
 	PopulationType population;
 
-	// Create the most default path (e.g. 1,2,3,4...)
-	Solution::Path path(distances_.Columns());
-	std::iota(path.begin(), path.end(), 0);
-
-	// Iterate over permutations and fill the population
-	do {
-		const auto distance = CalculateCost(path);
-		population.emplace_back(path, distance);
-	} while(population.size() < popultaion_size && std::next_permutation(path.begin(), path.end()));
+	while(population.size() < popultaion_size) {
+		auto path = GenerateRandomPath(distances_.Columns());
+		population.emplace_back(std::move(path), 0);
+	}
 
 	return population;
 }
@@ -101,6 +120,7 @@ Algorithm::PopulationType Algorithm::CreatePopulation(PopulationSizeType populta
 Algorithm::PopulationType Algorithm::UpdateCost(PopulationType population) const {
 	// Calculate cost of every solution in the population
 	for(auto iterator = population.begin(); iterator != population.end(); ++iterator) {
+		std::cout << "COST : " << iterator->cost << std::endl;
 		iterator->cost = CalculateCost(iterator->path);
 	}
 

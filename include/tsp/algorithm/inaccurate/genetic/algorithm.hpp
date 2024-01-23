@@ -43,6 +43,9 @@ protected:
 	using PopulationSizeType = tsp::operators::Operator::PopulationSizeType;
 	using SelectionPoolSizeType = tsp::operators::crossover::Algorithm::SelectionPoolSizeType;
 
+	using Path = Solution::Path;
+	using PathSize = Solution::SizeType;
+
 public:
 	/**
 	 * @brief Construct a new Algorithm object
@@ -86,12 +89,20 @@ public:
 
 protected:
 	/**
+	 * @brief Generate a random path
+	 * 
+	 * @param size - the size of the path to generate
+	 * @return Path - a random path
+	 */
+	Path GenerateRandomPath(const PathSize size) const;
+
+	/**
 	 * @brief Create a the starting population
 	 * 
 	 * @param size - the size of the population
 	 * @return PopulationType - a new population
 	 */
-	PopulationType CreatePopulation(PopulationSizeType size) const;
+	PopulationType CreatePopulation(const PopulationSizeType size) const;
 
 	/**
 	 * @brief Update the costs in the population

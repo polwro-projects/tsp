@@ -21,6 +21,7 @@
 
 #include <tuple>
 
+#include "tsp/algorithm/algorithm.hpp"
 #include "tsp/operators/operator.hpp"
 
 namespace tsp::operators::crossover {
@@ -29,6 +30,11 @@ namespace tsp::operators::crossover {
  * 
  */
 class Algorithm : protected Operator {
+protected:
+	using Path = tsp::algorithm::Algorithm::Solution::Path;
+	using PathSizeType = Path::size_type;
+	using PathIndexType = Path::size_type;
+
 public:
 	/**
 	 * @brief Construct a new Algorithm object
@@ -54,5 +60,8 @@ protected:
 	 * @return std::tuple<PathIndexType, PathIndexType> - the range which corresponds to some region
 	 */
 	std::tuple<PathIndexType, PathIndexType> GetRandomRange() const;
+
+protected:
+	const PathSizeType kPathSize;
 };
 } // namespace tsp::operators::crossover

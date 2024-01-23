@@ -20,12 +20,11 @@
 #include "tsp/operators/operator.hpp"
 
 namespace tsp::operators {
-Operator::Operator(PathSizeType path_size)
-	: kPathSize{path_size}
-	, distribution_{0, path_size} {
+Operator::Operator(RandomValueType max)
+	: distribution_{0, max} {
 
 	// Set up the random integer generator
 	std::random_device device;
-	generator_ = std::mt19937{device()};
+	generator_ = GeneratorType{device()};
 }
 } // namespace tsp::operators

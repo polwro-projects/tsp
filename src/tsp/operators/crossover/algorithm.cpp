@@ -21,12 +21,13 @@
 
 namespace tsp::operators::crossover {
 Algorithm::Algorithm(PathSizeType path_size)
-	: Operator{path_size} { }
+	: Operator{path_size - 1}
+	, kPathSize{path_size} { }
 
 std::tuple<Algorithm::PathIndexType, Algorithm::PathIndexType> Algorithm::GetRandomRange() const {
 	// Generate the starting index
 	PathIndexType start = distribution_(generator_);
-	start = start == kPathSize ? start - 1 : start;
+	start = start == (kPathSize - 1) ? start - 2 : start;
 
 	// Try to generate the end index to be greater than the start one
 	PathIndexType end;

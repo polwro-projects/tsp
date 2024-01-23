@@ -27,7 +27,7 @@ namespace tsp::operators::mutation {
  * 		  produces new paths by swapping two random elementd of the base one.
  * 
  */
-class Swap : protected tsp::operators::mutation::Algorithm {
+class Swap : public tsp::operators::mutation::Algorithm {
 public:
 	/**
 	 * @brief Construct a new Swap object

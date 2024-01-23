@@ -26,9 +26,9 @@ OX::OX(PathSizeType path_size)
 	: Algorithm{path_size} { }
 
 OX::Path OX::Cross(Path lhs, Path rhs) const {
-	if(lhs.size() != rhs.size()) {
+	if(lhs.size() != rhs.size() || lhs.size() != kPathSize) {
 		// FIXME : change to a more concrete type
-		throw std::runtime_error("The paths meant for crossing don't have the same size");
+		throw std::runtime_error("The paths meant for crossing don't have correct size");
 	}
 
 	// Generate random indexes for accessing a range of values in both paths

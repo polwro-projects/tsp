@@ -22,41 +22,38 @@
 #include "tsp/algorithm/algorithm.hpp"
 #include "tsp/operators/operator.hpp"
 
-namespace tsp::operators::mutation {
+namespace tsp::operators::selection {
 /**
- * @brief This is a base class for all the algorithms for mutation (which is needed for the genetic algorithm)
+ * @brief This is a base class for all the algorithms for selection (which is needed for the genetic algorithm)
  * 
  */
 class Algorithm : protected Operator {
-protected:
-	using Path = tsp::algorithm::Algorithm::Solution::Path;
-	using PathSizeType = Path::size_type;
-	using PathIndexType = Path::size_type;
+public:
+	using SelectionPoolType = std::vector<tsp::algorithm::Algorithm::Solution>;
+	using SelectionPoolSize = uint32_t;
+	using PopulationType = std::vector<tsp::algorithm::Algorithm::Solution>;
+	using PopulationSizeType = uint32_t;
 
 public:
 	/**
 	 * @brief Construct a new Algorithm object
 	 * 
-	 * @param path_size - the size of a path to work with
+	 * @param size - the size of the population to work with
 	 */
-	explicit Algorithm(PathSizeType path_size);
+	explicit Algorithm(PopulationSizeType size);
 
 public:
 	/**
-	 * @brief Implementation of the mutation function
-	 * 
-	 * @param lhs - the first parent
-	 * @param rhs - the second parent
-	 * @return Path - the result of crossing two parents
-	 */
-	virtual Path Mutate(Path rhs) const = 0;
+     * @brief Do selection on the given population
+     * 
+     * @param population - the population to filter
+	 * @param pool_size - the size of the pool
+     * @return SelectionPoolType - the selected individuals
+     */
+	virtual SelectionPoolType Select(PopulationType population,
+									 const SelectionPoolSize pool_size) const = 0;
 
 protected:
-	/**
-	 * @brief Get a random index inside of the predefined range
-	 * 
-	 * @return PathIndexType - a random index inside of the path range
-	 */
-	PathIndexType GetRandomIndex() const;
+	const PopulationSizeType kPopulationSize;
 };
-} // namespace tsp::operators::mutation
+} // namespace tsp::operators::selection

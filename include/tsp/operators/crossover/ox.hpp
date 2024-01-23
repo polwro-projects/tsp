@@ -27,7 +27,7 @@ namespace tsp::operators::crossover {
  * 		  the genetic algorithm. 
  * 
  */
-class OX : protected tsp::operators::crossover::Algorithm {
+class OX : public tsp::operators::crossover::Algorithm {
 public:
 	/**
 	 * @brief Construct a new OX object

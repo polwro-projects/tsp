@@ -21,7 +21,7 @@
 
 namespace tsp::operators::mutation {
 Algorithm::Algorithm(PathSizeType path_size)
-	: Operator{path_size} { }
+	: Operator{path_size - 1} { }
 
 Algorithm::PathIndexType Algorithm::GetRandomIndex() const {
 	return distribution_(generator_);

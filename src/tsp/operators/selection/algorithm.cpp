@@ -17,43 +17,10 @@
  * under the License.
  */
 
-#pragma once
+#include "tsp/operators/selection/algorithm.hpp"
 
-#include <random>
-
-namespace tsp::operators {
-/**
- * @brief This is a base class for all the operators (f.e. crossover or mutation)
- * 
- */
-class Operator {
-public:
-	using GeneratorType = std::mt19937;
-	using RandomValueType = GeneratorType::result_type;
-	using DistributionType = std::uniform_int_distribution<RandomValueType>;
-
-public:
-	/**
-	 * @brief Construct a new Algorithm object
-	 * 
-	 * @param max - the maximum possible random value
-	 */
-	explicit Operator(RandomValueType max);
-
-	/**
-	 * @brief Deleted copy constructor
-	 * 
-	 */
-	Operator(const Operator&) = delete;
-
-	/**
-	 * @brief Destroy the Operator object
-	 * 
-	 */
-	virtual ~Operator() = default;
-
-protected:
-	mutable GeneratorType generator_;
-	mutable DistributionType distribution_;
-};
-} // namespace tsp::operators
+namespace tsp::operators::selection {
+Algorithm::Algorithm(PopulationSizeType size)
+	: Operator{size}
+	, kPopulationSize{size} { }
+} // namespace tsp::operators::selection

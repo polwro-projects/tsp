@@ -20,10 +20,12 @@
 #pragma once
 
 #include <memory>
+#include <random>
 
 #include "tsp/algorithm/algorithm.hpp"
 #include "tsp/operators/crossover/algorithm.hpp"
 #include "tsp/operators/mutation/algorithm.hpp"
+#include "tsp/operators/selection/algorithm.hpp"
 
 namespace tsp::algorithm::inaccurate::genetic {
 
@@ -32,14 +34,14 @@ namespace tsp::algorithm::inaccurate::genetic {
  * 
  */
 class Algorithm final : public tsp::algorithm::Algorithm {
-public:
+protected:
 	using CrossoverAlgorithmType = tsp::operators::crossover::Algorithm;
 	using MutationAlgorithmType = tsp::operators::mutation::Algorithm;
-	using ProbabilityType = float;
-	using PopulationSizeType = uint32_t;
-	using PopulationType = std::vector<Solution>;
-	using SelectionPoolType = std::vector<Solution>;
-	using PathSizeType = Solution::Path::size_type;
+	using SelectionAlgorithmType = tsp::operators::selection::Algorithm;
+
+	using PopulationType = tsp::operators::Operator::PopulationType;
+	using PopulationSizeType = tsp::operators::Operator::PopulationSizeType;
+	using SelectionPoolSizeType = tsp::operators::crossover::Algorithm::SelectionPoolSizeType;
 
 public:
 	/**
@@ -47,8 +49,11 @@ public:
 	 * 
 	 * @param distances - the distance matrix to use
 	 * @param population_size - the size of the population
+	 * @param pool_size - the size of the selection pool
 	 */
-	Algorithm(DistanceMatrix distances, PopulationSizeType population_size);
+	Algorithm(DistanceMatrix distances,
+			  PopulationSizeType population_size,
+			  SelectionPoolSizeType pool_size);
 
 public:
 	/**
@@ -59,13 +64,6 @@ public:
 	void SetCrossoverAlgorithm(std::unique_ptr<CrossoverAlgorithmType> ptr);
 
 	/**
-	 * @brief Set the crossover probability
-	 * 
-	 * @param value - a new value of the crossing probability
-	 */
-	void SetCrossoverProbability(ProbabilityType value);
-
-	/**
 	 * @brief Set the mutation algorithm
 	 * 
 	 * @param ptr - a pointer to the mutation algorithm
@@ -73,11 +71,11 @@ public:
 	void SetMutationAlgorithm(std::unique_ptr<MutationAlgorithmType> ptr);
 
 	/**
-	 * @brief Set the mutation probability
+	 * @brief Set the selection algorithm
 	 * 
-	 * @param value - a new value of the mutation probability
+	 * @param ptr - the pointer to the selection algorithm
 	 */
-	void SetMutationProbability(ProbabilityType value);
+	void SetSelectionAlgorithm(std::unique_ptr<SelectionAlgorithmType> ptr);
 
 	/**
 	 * @brief Solve the problem
@@ -87,18 +85,27 @@ public:
 	bool Solve() override;
 
 protected:
+	/**
+	 * @brief Create a the starting population
+	 * 
+	 * @param size - the size of the population
+	 * @return PopulationType - a new population
+	 */
 	PopulationType CreatePopulation(PopulationSizeType size) const;
-	SelectionPoolType Select(const PopulationType& population) const;
-	PopulationType DoCrossover(SelectionPoolType pool) const;
-	PopulationType Mutate(PopulationType population) const;
+
+	/**
+	 * @brief Update the costs in the population
+	 * 
+	 * @param population - the population to update the cost for
+	 */
+	PopulationType UpdateCost(PopulationType population) const;
 
 protected:
 	const PopulationSizeType kPopulationSize;
+	const SelectionPoolSizeType kPoolSize;
 
 	std::unique_ptr<CrossoverAlgorithmType> crossover_algorithm_;
-	ProbabilityType crossover_probability_;
-
 	std::unique_ptr<MutationAlgorithmType> mutation_algorithm_;
-	ProbabilityType mutation_probability_;
+	std::unique_ptr<SelectionAlgorithmType> selection_algorithm_;
 };
 } // namespace tsp::algorithm::inaccurate::genetic

@@ -22,27 +22,31 @@
 #include <algorithm>
 
 namespace tsp::algorithm::inaccurate::genetic {
-Algorithm::Algorithm(DistanceMatrix distances, PopulationSizeType population_size)
+Algorithm::Algorithm(DistanceMatrix distances,
+					 PopulationSizeType population_size,
+					 SelectionPoolSizeType pool_size)
 	: tsp::algorithm::Algorithm{distances}
-	, kPopulationSize{population_size} { }
+	, kPopulationSize{population_size}
+	, kPoolSize{pool_size} { }
 
 void Algorithm::SetCrossoverAlgorithm(std::unique_ptr<CrossoverAlgorithmType> ptr) {
 	crossover_algorithm_ = std::move(ptr);
-}
-
-void Algorithm::SetCrossoverProbability(ProbabilityType value) {
-	crossover_probability_ = value;
 }
 
 void Algorithm::SetMutationAlgorithm(std::unique_ptr<MutationAlgorithmType> ptr) {
 	mutation_algorithm_ = std::move(ptr);
 }
 
-void Algorithm::SetMutationProbability(ProbabilityType value) {
-	mutation_probability_ = value;
+void Algorithm::SetSelectionAlgorithm(std::unique_ptr<SelectionAlgorithmType> ptr) {
+	selection_algorithm_ = std::move(ptr);
 }
 
 bool Algorithm::Solve() {
+	// Check if the algorithm is supplied with all the operators needed
+	if(!crossover_algorithm_ || !mutation_algorithm_ || !selection_algorithm_) {
+		return false;
+	}
+
 	// Unset the stop flag
 	is_stopped_ = false;
 
@@ -54,13 +58,28 @@ bool Algorithm::Solve() {
 			return false;
 		}
 
-		const auto pool = Select(population);
-		auto children = DoCrossover(std::move(pool));
-		children = Mutate(children);
+		const auto pool = selection_algorithm_->Select(population, kPoolSize);
+		population = crossover_algorithm_->Cross(std::move(pool), kPopulationSize);
+		population = mutation_algorithm_->Mutate(population);
+		population = UpdateCost(std::move(population));
 
-		// Add the children to the population
-		std::copy(children.begin(), children.end(), std::back_inserter(pool));
+		// Check every individual in the resulting population
+		for(const auto& individual : population) {
+			const auto distance = distances_(individual.path.back(), individual.path.front());
+			const auto cost = individual.cost + distance;
+
+			// Check if the cost of the solution is better than the existing one
+			if(cost < solution_.cost) {
+				solution_ = individual;
+
+				// Add the last hop to the path
+				solution_.path.push_back(solution_.path.front());
+				solution_.cost = cost;
+			}
+		}
 	}
+
+	return true;
 }
 
 Algorithm::PopulationType Algorithm::CreatePopulation(PopulationSizeType popultaion_size) const {
@@ -72,43 +91,19 @@ Algorithm::PopulationType Algorithm::CreatePopulation(PopulationSizeType populta
 
 	// Iterate over permutations and fill the population
 	do {
-		// Get to the next permutation if it's length is bigger than the best one so far
 		const auto distance = CalculateCost(path);
-		if(distance >= solution_.cost) {
-			continue;
-		}
-
-		// Save the best result
 		population.emplace_back(path, distance);
 	} while(population.size() < popultaion_size && std::next_permutation(path.begin(), path.end()));
+
+	return population;
 }
 
-Algorithm::SelectionPoolType Algorithm::Select(const PopulationType& population) const {
-	SelectionPoolType pool;
-
-	// Calculate total fitness
-	double total_cost = 0.0;
-	for(const auto& individual : population) {
-		total_cost += individual.cost;
+Algorithm::PopulationType Algorithm::UpdateCost(PopulationType population) const {
+	// Calculate cost of every solution in the population
+	for(auto iterator = population.begin(); iterator != population.end(); ++iterator) {
+		iterator->cost = CalculateCost(iterator->path);
 	}
 
-	for(uint32_t iteration = 0; iteration < kPopulationSize; ++iteration) {
-		// "Spin" the roulette wheel
-		double spin = static_cast<double>(rand()) / RAND_MAX * total_cost;
-
-		// Select individual based on roulette wheel
-		double cumulative_cost = 0.0;
-		for(const auto& individual : population) {
-			cumulative_cost += individual.cost;
-			if(cumulative_cost >= spin) {
-				pool.push_back(individual);
-				break;
-			}
-		}
-	}
-
-	return pool;
+	return population;
 }
-
-Algorithm::PopulationType Algorithm::DoCrossover(SelectionPoolType pool) const { }
 } // namespace tsp::algorithm::inaccurate::genetic

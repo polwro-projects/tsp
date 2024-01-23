@@ -21,7 +21,6 @@
 
 #include <tuple>
 
-#include "tsp/algorithm/algorithm.hpp"
 #include "tsp/operators/operator.hpp"
 
 namespace tsp::operators::crossover {
@@ -30,10 +29,19 @@ namespace tsp::operators::crossover {
  * 
  */
 class Algorithm : protected Operator {
+public:
+	using SelectionPoolType = std::vector<Solution>;
+	using SelectionPoolSizeType = uint32_t;
+
 protected:
-	using Path = tsp::algorithm::Algorithm::Solution::Path;
+	using Path = Solution::Path;
 	using PathSizeType = Path::size_type;
 	using PathIndexType = Path::size_type;
+
+private:
+	using ProbabilityType = float;
+	using ProbabilityGeneratorType = std::mt19937;
+	using ProbabilityDistributionType = std::uniform_real_distribution<ProbabilityType>;
 
 public:
 	/**
@@ -53,6 +61,22 @@ public:
 	 */
 	virtual Path Cross(Path lhs, Path rhs) const = 0;
 
+	/**
+	 * @brief Use the crossover operator on the pool to create a new population
+	 * 
+	 * @param pool - the pool of individuals to process
+	 * @param size - the size of the population
+	 * @return PopulationType - a new population, which was created using the crossover operator
+	 */
+	PopulationType Cross(SelectionPoolType pool, PopulationSizeType size) const;
+
+	/**
+	 * @brief Set the crossover probability
+	 * 
+	 * @param value - a new value of the crossing probability
+	 */
+	void SetProbability(ProbabilityType value);
+
 protected:
 	/**
 	 * @brief Get random indexes of elements which specify some region in parents
@@ -63,5 +87,10 @@ protected:
 
 protected:
 	const PathSizeType kPathSize;
+
+private:
+	ProbabilityType probability_;
+	mutable ProbabilityGeneratorType probability_generator_;
+	mutable ProbabilityDistributionType probability_distribution_{0, 1};
 };
 } // namespace tsp::operators::crossover

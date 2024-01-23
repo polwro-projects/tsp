@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "tsp/algorithm/algorithm.hpp"
 #include "tsp/operators/operator.hpp"
 
 namespace tsp::operators::mutation {
@@ -32,6 +31,11 @@ protected:
 	using Path = tsp::algorithm::Algorithm::Solution::Path;
 	using PathSizeType = Path::size_type;
 	using PathIndexType = Path::size_type;
+
+private:
+	using ProbabilityType = float;
+	using ProbabilityGeneratorType = std::mt19937;
+	using ProbabilityDistributionType = std::uniform_real_distribution<ProbabilityType>;
 
 public:
 	/**
@@ -51,6 +55,21 @@ public:
 	 */
 	virtual Path Mutate(Path rhs) const = 0;
 
+	/**
+	 * @brief Mutate the population using the supplied mutation algorithm
+	 * 
+	 * @param population - the population to change
+	 * @return PopulationType - a new population, created from the supplied one
+	 */
+	PopulationType Mutate(PopulationType population) const;
+
+	/**
+	 * @brief Set the mutation probability
+	 * 
+	 * @param value - a new value of the mutation probability
+	 */
+	void SetProbability(ProbabilityType value);
+
 protected:
 	/**
 	 * @brief Get a random index inside of the predefined range
@@ -58,5 +77,10 @@ protected:
 	 * @return PathIndexType - a random index inside of the path range
 	 */
 	PathIndexType GetRandomIndex() const;
+
+private:
+	ProbabilityType probability_;
+	mutable ProbabilityGeneratorType probability_generator_;
+	mutable ProbabilityDistributionType probability_distribution_{0, 1};
 };
 } // namespace tsp::operators::mutation

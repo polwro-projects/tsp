@@ -21,6 +21,8 @@
 
 #include <random>
 
+#include "tsp/algorithm/algorithm.hpp"
+
 namespace tsp::operators {
 /**
  * @brief This is a base class for all the operators (f.e. crossover or mutation)
@@ -28,6 +30,11 @@ namespace tsp::operators {
  */
 class Operator {
 public:
+	using Solution = tsp::algorithm::Algorithm::Solution;
+	using PopulationType = std::vector<Solution>;
+	using PopulationSizeType = uint32_t;
+
+protected:
 	using GeneratorType = std::mt19937;
 	using RandomValueType = GeneratorType::result_type;
 	using DistributionType = std::uniform_int_distribution<RandomValueType>;

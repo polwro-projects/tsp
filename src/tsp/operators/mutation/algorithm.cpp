@@ -21,9 +21,31 @@
 
 namespace tsp::operators::mutation {
 Algorithm::Algorithm(PathSizeType path_size)
-	: Operator{path_size - 1} { }
+	: Operator{path_size - 1} {
+
+	// Set up the random float generator
+	std::random_device device;
+	generator_ = ProbabilityGeneratorType{device()};
+}
 
 Algorithm::PathIndexType Algorithm::GetRandomIndex() const {
 	return distribution_(generator_);
 }
+
+Algorithm::PopulationType Algorithm::Mutate(PopulationType population) const {
+	for(auto iterator = population.begin(); iterator != population.end(); ++iterator) {
+		const auto probability = probability_distribution_(probability_generator_);
+		if(probability < probability_) {
+			auto path = Mutate(std::move(iterator->path));
+			iterator->path = std::move(path);
+		}
+	}
+
+	return population;
+}
+
+void Algorithm::SetProbability(ProbabilityType value) {
+	probability_ = value;
+}
+
 } // namespace tsp::operators::mutation

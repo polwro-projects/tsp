@@ -22,7 +22,12 @@
 namespace tsp::operators::crossover {
 Algorithm::Algorithm(PathSizeType path_size)
 	: Operator{path_size - 1}
-	, kPathSize{path_size} { }
+	, kPathSize{path_size} {
+
+	// Set up the random float generator
+	std::random_device device;
+	generator_ = ProbabilityGeneratorType{device()};
+}
 
 std::tuple<Algorithm::PathIndexType, Algorithm::PathIndexType> Algorithm::GetRandomRange() const {
 	// Generate the starting index
@@ -36,5 +41,34 @@ std::tuple<Algorithm::PathIndexType, Algorithm::PathIndexType> Algorithm::GetRan
 	} while(end <= start);
 
 	return {start, end};
+}
+
+Algorithm::PopulationType Algorithm::Cross(SelectionPoolType pool, PopulationSizeType size) const {
+	PopulationType population;
+	while(population.size() < size) {
+		// Get two random parents
+		const auto first = pool.at(rand() % pool.size()).path;
+		const auto second = pool.at(rand() % pool.size()).path;
+
+		// If the probability is not met, push the parents to the population
+		const auto probability = probability_distribution_(probability_generator_);
+		if(probability >= probability_) {
+			// Add the child to the result population
+			population.emplace_back(first, 0);
+			population.emplace_back(second, 0);
+
+			continue;
+		}
+
+		// Add the children to the  population
+		population.emplace_back(Cross(first, second), 0);
+		population.emplace_back(Cross(second, first), 0);
+	}
+
+	return population;
+}
+
+void Algorithm::SetProbability(ProbabilityType value) {
+	probability_ = value;
 }
 } // namespace tsp::operators::crossover

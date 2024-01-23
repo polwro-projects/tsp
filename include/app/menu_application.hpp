@@ -73,6 +73,14 @@ protected:
 	std::unique_ptr<ui::menu::Submenu> CreateSASubmenu(ui::Menu* menu);
 
 	/**
+	 * @brief Create the genetic algorithm submenu
+	 * 
+	 * @param menu - the menu object to be used in the submenu instance
+	 * @return std::unique_ptr<ui::Submenu> the submenu with the GA entries
+	 */
+	std::unique_ptr<ui::menu::Submenu> CreateGASubmenu(ui::Menu* menu);
+
+	/**
 	 * @brief Create the matrix manipulation submenu
 	 * 
 	 * @param menu - the menu object to be used in the submenu instance

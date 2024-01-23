@@ -30,6 +30,9 @@
 #include "tsp/algorithm/accurate/bf.hpp"
 #include "tsp/algorithm/inaccurate/sa/linear.hpp"
 #include "tsp/neighborhood/random.hpp"
+#include "tsp/operators/crossover/ox.hpp"
+#include "tsp/operators/mutation/swap.hpp"
+#include "tsp/operators/selection/roulette.hpp"
 #include "ui/menu/callable_entry.hpp"
 #include "ui/menu/submenu.hpp"
 
@@ -93,6 +96,9 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	auto sa_submenu = CreateSASubmenu(menu.get());
 	sa_submenu->SetParent(root_entry);
 
+	auto ga_submenu = CreateGASubmenu(menu.get());
+	sa_submenu->SetParent(root_entry);
+
 	auto route_submenu = CreateRouteSubmenu(menu.get());
 	route_submenu->SetParent(root_entry);
 
@@ -103,6 +109,7 @@ std::unique_ptr<ui::Menu> MenuApplication::CreateMenu() {
 	root_entry->AddChild(bf_entry);
 	root_entry->AddChild(bnb_dfs_entry);
 	root_entry->AddChild(std::move(sa_submenu));
+	root_entry->AddChild(std::move(ga_submenu));
 	root_entry->Enter();
 
 	return menu;
@@ -157,6 +164,72 @@ std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateSASubmenu(ui::Menu* me
 	submenu->AddChild(epoch_size_entry);
 	submenu->AddChild(linear_coefficient_entry);
 	submenu->AddChild(sa_linear_entry);
+
+	return std::move(submenu);
+}
+
+std::unique_ptr<ui::menu::Submenu> MenuApplication::CreateGASubmenu(ui::Menu* menu) {
+	using namespace ui;
+
+	auto crossover_entry =
+		std::make_shared<menu::CallableEntry>("Set the crossover probability", [this]() {
+			std::cout << "Please, enter the value: ";
+			std::cin >> crossover_probability_;
+		});
+
+	auto mutation_entry =
+		std::make_shared<menu::CallableEntry>("Set the mutation probability", [this]() {
+			std::cout << "Please, enter the value: ";
+			std::cin >> mutation_probability_;
+		});
+
+	auto population_entry =
+		std::make_shared<menu::CallableEntry>("Set the population size", [this]() {
+			std::cout << "Please, enter value: ";
+			std::cin >> population_size_;
+		});
+
+	auto algorithm_entry =
+		std::make_shared<menu::CallableEntry>("Calculate the TSP solution", [this]() {
+			// Make it impossible to run the algorithm without the timeout
+			if(timeout_ == std::chrono::seconds(0)) {
+				std::cout << "[ERROR] Please, set the timeout for this algorithm before running it!"
+						  << std::endl;
+				return;
+			}
+
+			const auto crossover_algorithm =
+				new tsp::operators::crossover::OX(distance_matrix_.Columns());
+			crossover_algorithm->SetProbability(crossover_probability_);
+
+			const auto mutation_algorithm =
+				new tsp::operators::mutation::Swap(distance_matrix_.Columns());
+			mutation_algorithm->SetProbability(mutation_probability_);
+
+			const auto selection_algorithm =
+				new tsp::operators::selection::Roulette(population_size_);
+
+			auto algorithm = std::make_unique<tsp::algorithm::inaccurate::genetic::Algorithm>(
+				distance_matrix_, population_size_, population_size_ / 2);
+			algorithm->SetCrossoverAlgorithm(
+				std::unique_ptr<tsp::operators::crossover::Algorithm>{crossover_algorithm});
+			algorithm->SetMutationAlgorithm(
+				std::unique_ptr<tsp::operators::mutation::Algorithm>(mutation_algorithm));
+			algorithm->SetSelectionAlgorithm(
+				std::unique_ptr<tsp::operators::selection::Algorithm>(selection_algorithm));
+
+			const auto results = RunTest(algorithm.get());
+			OutputResults(results);
+
+			// Store the last solution in the class
+			solution_ = results.solution;
+		});
+
+	auto submenu = std::make_unique<menu::Submenu>("Genetic Algorithm", menu);
+	submenu->AddChild(crossover_entry);
+	submenu->AddChild(mutation_entry);
+	submenu->AddChild(population_entry);
+	submenu->AddChild(algorithm_entry);
 
 	return std::move(submenu);
 }

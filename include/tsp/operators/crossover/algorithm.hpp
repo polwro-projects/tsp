@@ -32,6 +32,7 @@ class Algorithm : protected Operator {
 public:
 	using SelectionPoolType = std::vector<Solution>;
 	using SelectionPoolSizeType = uint32_t;
+	using ProbabilityType = float;
 
 protected:
 	using Path = Solution::Path;
@@ -39,7 +40,6 @@ protected:
 	using PathIndexType = Path::size_type;
 
 private:
-	using ProbabilityType = float;
 	using ProbabilityGeneratorType = std::mt19937;
 	using ProbabilityDistributionType = std::uniform_real_distribution<ProbabilityType>;
 

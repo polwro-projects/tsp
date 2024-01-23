@@ -21,6 +21,7 @@
 #include <chrono>
 
 #include "io/file/problem/iproblemparser.hpp"
+#include "tsp/algorithm/inaccurate/genetic/algorithm.hpp"
 #include "tsp/algorithm/inaccurate/sa/linear.hpp"
 
 namespace app {
@@ -36,6 +37,8 @@ protected:
 	using LinearCoefficientType = tsp::algorithm::inaccurate::sa::LinearCoefficientType;
 	using TemperatureType = tsp::algorithm::inaccurate::sa::TemperatureType;
 	using TimeoutType = std::chrono::seconds;
+	using ProbabilityType = tsp::operators::crossover::Algorithm::ProbabilityType;
+	using PopulationSizeType = tsp::operators::Operator::PopulationSizeType;
 
 	struct TestResult {
 		ExecutionDurationType duration;
@@ -91,6 +94,10 @@ protected:
 
 protected:
 	TimeoutType timeout_{};
+
+	ProbabilityType crossover_probability_;
+	ProbabilityType mutation_probability_;
+	PopulationSizeType population_size_;
 
 	TemperatureType temperature_{};
 	EpochType epoch_size_{};

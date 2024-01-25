@@ -52,11 +52,11 @@ public:
 
 protected:
 	/**
-     * @brief Calculate the total cost of all the population
+     * @brief Calculate the maximum cost of all the population
      * 
      * @param population - the population to calculate the cost for
-     * @return CostType - the cost of the whole population
+     * @return CostType - the max cost of the whole population
      */
-	CostType CalculateTotalCost(const PopulationType& population) const;
+	CostType CalculateMaxCost(const PopulationType& population) const;
 };
 } // namespace tsp::operators::selection

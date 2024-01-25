@@ -27,16 +27,17 @@ Roulette::Roulette(PopulationSizeType size)
 
 Roulette::SelectionPoolType Roulette::Select(PopulationType population,
 											 const SelectionPoolSize pool_size) const {
+	// Don't do anything if the population is empty
+	if(population.empty()) {
+		return {};
+	}
+
+	// Update the distribution boundaries
+	const auto max = CalculateMaxCost(population) + 1;
+	distribution_ = DistributionType(0, max);
+
+	// Fill the pool
 	SelectionPoolType pool;
-
-	// Sort the population before doing things
-	std::sort(
-		population.begin(), population.end(), std::greater<tsp::algorithm::Algorithm::Solution>());
-
-	// Calculate total fitness
-	const auto cost = CalculateTotalCost(population);
-	distribution_ = DistributionType{0, cost};
-
 	while(pool.size() < pool_size) {
 		// "Spin" the roulette wheel
 		double spin = distribution_(generator_);
@@ -44,7 +45,7 @@ Roulette::SelectionPoolType Roulette::Select(PopulationType population,
 		// Select individual based on roulette wheel
 		double cumulative_cost = 0.0;
 		for(auto iterator = population.begin(); iterator != population.end();) {
-			cumulative_cost += iterator->cost;
+			cumulative_cost += max - iterator->cost;
 
 			// Check if the individual can be added to the pool
 			if(cumulative_cost >= spin) {
@@ -65,12 +66,14 @@ Roulette::SelectionPoolType Roulette::Select(PopulationType population,
 	return pool;
 }
 
-Roulette::CostType Roulette::CalculateTotalCost(const PopulationType& population) const {
-	CostType total_cost = 0.0;
-	for(const auto& individual : population) {
-		total_cost += individual.cost;
+Roulette::CostType Roulette::CalculateMaxCost(const PopulationType& population) const {
+	// Don't do anything if the population is empty
+	if(population.empty()) {
+		return {};
 	}
 
-	return total_cost;
+	const auto max = std::max_element(population.begin(), population.end());
+
+	return max->cost;
 }
 } // namespace tsp::operators::selection

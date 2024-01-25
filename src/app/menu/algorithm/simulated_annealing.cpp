@@ -61,16 +61,6 @@ std::unique_ptr<ui::menu::Submenu> SimulatedAnnealing::Create(ui::Menu* menu) {
 				return;
 			}
 
-			// Make it impossible to run the algorithm without the timeout
-			// FIXME : move
-			/*
-			if(timeout_ == std::chrono::seconds(0)) {
-				std::cout << "[ERROR] Please, set the timeout for this algorithm before running it!"
-						  << std::endl;
-				return;
-			}
-            */
-
 			auto algorithm =
 				std::make_unique<tsp::algorithm::inaccurate::sa::Linear<tsp::neighborhood::Random>>(
 					*matrix_, temperature_, epoch_size_, linear_coefficient_);

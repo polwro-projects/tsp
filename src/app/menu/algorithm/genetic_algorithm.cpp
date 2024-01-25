@@ -63,16 +63,6 @@ std::unique_ptr<ui::menu::Submenu> GeneticAlgorithm::Create(ui::Menu* menu) {
 				return;
 			}
 
-			// Make it impossible to run the algorithm without the timeout
-			// FIXME : move
-			/*
-			if(timeout_ == std::chrono::seconds(0)) {
-				std::cout << "[ERROR] Please, set the timeout for this algorithm before running it!"
-						  << std::endl;
-				return;
-			}
-            */
-
 			const auto crossover_algorithm =
 				new ::tsp::operators::crossover::OX(matrix_->Columns());
 			crossover_algorithm->SetProbability(crossover_probability_);

@@ -3,9 +3,20 @@
 project ("TSP")
 
 set(SOURCES
-	"src/app/iapplication.cpp"
-	"src/app/preconfigured_application.cpp"
-	"src/app/menu_application.cpp"
+	"src/application/iapplication.cpp"
+	"src/application/menu/algorithm/algorithm.cpp"
+	"src/application/menu/algorithm/branch_and_bound.cpp"
+	"src/application/menu/algorithm/bruteforce.cpp"
+	"src/application/menu/algorithm/genetic_algorithm.cpp"
+	"src/application/menu/algorithm/simulated_annealing.cpp"
+	"src/application/menu/math/matrix.cpp"
+	"src/application/menu/route/route.cpp"
+	"src/application/menu/application.cpp"
+	"src/application/configuration/factory/algorithm/branch_and_bound.cpp"
+	"src/application/configuration/factory/algorithm/bruteforce.cpp"
+	"src/application/configuration/factory/algorithm/genetic.cpp"
+	"src/application/configuration/factory/algorithm/simulated_annealing.cpp"
+	"src/application/configuration/application.cpp"
 	"src/io/file/configuration/ini/parser.cpp"
 	"src/io/file/problem/tsp/parser.cpp"
 	"src/io/file/problem/txt/parser.cpp"

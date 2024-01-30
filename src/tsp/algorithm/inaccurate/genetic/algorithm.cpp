@@ -78,7 +78,6 @@ bool Algorithm::Solve() {
 			}
 		}
 	}
-
 	return true;
 }
 

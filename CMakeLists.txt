@@ -1,6 +1,14 @@
-﻿cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.12)
 
 project ("TSP")
+
+# If not specified, use the "Release" type of build by default
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+  if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+  endif()
+endif()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCES
 	"src/application/iapplication.cpp"
@@ -48,6 +56,5 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 	include
 )
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 20)
-endif()
+# Require C++ 20
+set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 20)
